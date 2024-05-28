@@ -6,12 +6,19 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "astro build && wrangler pages dev",
+    "astro": "astro",
+    "deploy": "astro build && wrangler pages deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "astro": "^4.9.2",
     "@astrojs/check": "^0.7.0",
+    "@astrojs/cloudflare": "^10.2.6",
+    "astro": "^4.9.2",
     "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240524.0",
+    "wrangler": "^3.57.2"
   }
 }
