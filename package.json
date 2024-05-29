@@ -14,7 +14,9 @@
   "dependencies": {
     "@astrojs/check": "^0.7.0",
     "@astrojs/cloudflare": "^10.2.6",
+    "@auth/core": "^0.18.6",
     "astro": "^4.9.2",
+    "auth-astro": "^4.1.1",
     "typescript": "^5.4.5"
   },
   "devDependencies": {
