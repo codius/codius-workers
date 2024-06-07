@@ -11,5 +11,13 @@ export default defineConfig({
       enabled: true
     }
   }),
-  integrations: [auth()]
+  integrations: [auth()],
+  vite: {
+    build: {
+      minify: false,
+    },
+    ssr: {
+      external: ['node:path'],
+    },
+  },
 });

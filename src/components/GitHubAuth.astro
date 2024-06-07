@@ -1,0 +1,23 @@
+---
+import type { Session } from '@auth/core/types';
+import { Auth, SignIn, SignOut } from 'auth-astro/components';
+import { getSession } from 'auth-astro/server';
+
+---
+<Auth>
+  {(session: Session) => {
+    return (
+      <>
+      {!session ? 
+        <SignIn provider="github">Login</SignIn>
+      :
+        <SignOut>Logout</SignOut>
+      }
+
+      <p>
+        {session ? `Logged in as ${session.user?.name}` : 'Not logged in'}
+      </p>
+      </>
+    )
+  }}
+</Auth>
