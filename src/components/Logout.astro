@@ -1,7 +1,15 @@
 ---
-import { Auth, SignOut } from "auth-astro/components"
+import { Button } from "@/components/ui/button"
 ---
 
-<Auth>
-  <SignOut>Logout</SignOut>
-</Auth>
+<Button id="logout">Log out</Button>
+
+<script>
+  import { signOut } from "auth-astro/client"
+
+  const logoutButton = document.querySelector("#logout")
+
+  if (logoutButton !== null) {
+    logoutButton.addEventListener("click", () => signOut())
+  }
+</script>
