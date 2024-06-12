@@ -1,5 +1,6 @@
 import cloudflare from "@astrojs/cloudflare"
 import react from "@astrojs/react"
+import tailwind from "@astrojs/tailwind"
 import { defineConfig } from "astro/config"
 import auth from "auth-astro"
 
@@ -11,7 +12,7 @@ export default defineConfig({
       enabled: true,
     },
   }),
-  integrations: [auth(), react()],
+  integrations: [auth(), react(), tailwind()],
   vite: {
     build: {
       minify: false,
