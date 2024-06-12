@@ -1,15 +1,14 @@
-import { defineConfig } from 'astro/config';
-import cloudflare from "@astrojs/cloudflare";
-
-import auth from "auth-astro";
+import cloudflare from "@astrojs/cloudflare"
+import { defineConfig } from "astro/config"
+import auth from "auth-astro"
 
 // https://astro.build/config
 export default defineConfig({
   output: "server",
   adapter: cloudflare({
     platformProxy: {
-      enabled: true
-    }
+      enabled: true,
+    },
   }),
   integrations: [auth()],
   vite: {
@@ -17,7 +16,7 @@ export default defineConfig({
       minify: false,
     },
     ssr: {
-      external: ['node:path'],
+      external: ["node:path"],
     },
   },
-});
+})
