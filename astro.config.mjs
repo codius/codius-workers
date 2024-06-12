@@ -12,7 +12,7 @@ export default defineConfig({
       enabled: true,
     },
   }),
-  integrations: [auth(), react(), tailwind()],
+  integrations: [auth(), react(), tailwind({ applyBaseStyles: false })],
   vite: {
     build: {
       minify: false,
