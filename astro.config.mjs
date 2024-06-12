@@ -1,4 +1,5 @@
 import cloudflare from "@astrojs/cloudflare"
+import react from "@astrojs/react"
 import { defineConfig } from "astro/config"
 import auth from "auth-astro"
 
@@ -10,7 +11,7 @@ export default defineConfig({
       enabled: true,
     },
   }),
-  integrations: [auth()],
+  integrations: [auth(), react()],
   vite: {
     build: {
       minify: false,
