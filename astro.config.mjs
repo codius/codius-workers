@@ -7,9 +7,13 @@ import auth from "auth-astro"
 // https://astro.build/config
 export default defineConfig({
   output: "server",
+  experimental: {
+    actions: true,
+  },
   adapter: cloudflare({
     platformProxy: {
       enabled: true,
+      configPath: "wrangler.toml",
     },
   }),
   integrations: [auth(), react(), tailwind({ applyBaseStyles: false })],
@@ -18,7 +22,7 @@ export default defineConfig({
       minify: false,
     },
     ssr: {
-      external: ["node:path"],
+      external: ["node:path", "node:async_hooks"],
     },
   },
 })
