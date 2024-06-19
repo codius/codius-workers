@@ -8,7 +8,7 @@ import { useState } from "react"
 
 export function AppForm() {
   const [fieldErrors, setFieldErrors] = useState({
-    repo: null,
+    repoUrl: null,
     branch: null,
     directory: null,
   })
@@ -17,7 +17,7 @@ export function AppForm() {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     console.log(formData)
-    const { data, error } = await actions.app.safe(formData)
+    const { data, error } = await actions.deployApp.safe(formData)
     if (error) {
       if (isInputError(error)) {
         setFieldErrors(error.fields)
@@ -31,14 +31,17 @@ export function AppForm() {
 
   return (
     <form method="POST" onSubmit={onSubmit}>
-      <Input {...getActionProps(actions.app)} />
-      <Label className={fieldErrors.repo && "text-destructive"} htmlFor="repo">
+      <Input {...getActionProps(actions.deployApp)} />
+      <Label
+        className={fieldErrors.repoUrl && "text-destructive"}
+        htmlFor="repoUrl"
+      >
         GitHub Repository
       </Label>
       <Input
-        name="repo"
+        name="repoUrl"
         type="text"
-        id="repo"
+        id="repoUrl"
         required
         pattern="^https:\/\/github\.com\/[^\/]+\/[^\/]+$"
         title="URL must follow the format 'https://github.com/username/repository'"
@@ -47,13 +50,13 @@ export function AppForm() {
         The GitHub repository containing the Cloudflare Worker you want to
         deploy
       </p>
-      {fieldErrors.repo && (
+      {fieldErrors.repoUrl && (
         <p className="text-sm font-medium text-destructive">
-          {fieldErrors.repo}
+          {fieldErrors.repoUrl}
         </p>
       )}
       <Label
-        htmlFor="repo"
+        htmlFor="branch"
         className={fieldErrors.branch && "text-destructive"}
       >
         Branch

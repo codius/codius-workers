@@ -56,7 +56,7 @@ For [`AUTH_SECRET`](https://github.com/nowaythatworked/auth-astro?tab=readme-ov-
 
 For `DB`, use the name of the D1 database you created.
 
-For `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in `.env`, you'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) with:
+For `GITHUB_APP_NAME`, `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in `.env`, you'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) with:
 
 ![alt text](assets/image.png)
 
