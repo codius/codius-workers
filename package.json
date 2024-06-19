@@ -3,8 +3,8 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
+    "dev": "astro dev --port 8788",
+    "start": "astro dev --port 8788",
     "build": "astro check && astro build",
     "preview": "astro build && wrangler pages dev",
     "astro": "astro",
