@@ -51,15 +51,24 @@ export const server = {
             repo,
             branch,
             commitHash.sha,
-            directory || null,
+            directory || "/",
           )
           .run()
         console.log(info)
         return { success: true }
       } catch (e) {
         console.error(e)
+
+        if (e.message.includes("UNIQUE constraint failed")) {
+          throw new ActionError({
+            code: "CONFLICT",
+            message: "An app with these details already exists.",
+          })
+        }
+
         throw new ActionError({
           code: "INTERNAL_SERVER_ERROR",
+          message: "Unexpected issue saving the app.",
         })
       }
     },

@@ -1,0 +1,79 @@
+---
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { getSession } from "auth-astro/server"
+
+const session = await getSession(Astro.request)
+
+type AppRow = {
+  id: string
+  userId: string
+  githubOwner: string
+  repo: string
+  branch: string
+  commitHash: string
+  directory: string | null
+  status: string
+}
+
+const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
+  "SELECT * FROM apps WHERE userId = ?1",
+)
+  .bind(session.user.email)
+  .all<AppRow>()
+---
+
+<Table>
+  <TableCaption>Your Apps</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Repo</TableHead>
+      <TableHead>Commit</TableHead>
+      <TableHead>Status</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    {
+      apps.length === 0 && (
+        <TableRow>
+          <TableCell colSpan="4" class="text-center">
+            No apps found
+          </TableCell>
+        </TableRow>
+      )
+    }
+    {
+      apps.map((app: AppRow) => (
+        <TableRow key={app.id}>
+          <TableCell>
+            <a
+              href={`https://github.com/${app.githubOwner}/${app.repo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {app.githubOwner}/{app.repo}
+            </a>
+          </TableCell>
+
+          <TableCell>
+            <a
+              href={`https://github.com/${app.githubOwner}/${app.repo}/commit/${app.commitHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {app.commitHash}
+            </a>
+          </TableCell>
+          <TableCell>{app.status}</TableCell>
+        </TableRow>
+      ))
+    }
+  </TableBody>
+</Table>

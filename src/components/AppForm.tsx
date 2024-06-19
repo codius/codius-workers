@@ -3,10 +3,18 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { actions, getActionProps, isInputError } from "astro:actions"
+import {
+  actions,
+  getActionProps,
+  isInputError,
+  ActionError,
+} from "astro:actions"
 import { useState } from "react"
 
 export function AppForm() {
+  // TODO: useActionState
+  const [error, setError] = useState<ActionError | null>(null)
+
   const [fieldErrors, setFieldErrors] = useState({
     repoUrl: null,
     branch: null,
@@ -16,16 +24,16 @@ export function AppForm() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    console.log(formData)
     const { data, error } = await actions.deployApp.safe(formData)
     if (error) {
       if (isInputError(error)) {
         setFieldErrors(error.fields)
       } else {
         console.error(error)
+        setError(error)
       }
     } else {
-      console.log(data)
+      window.location.reload()
     }
   }
 
@@ -77,6 +85,9 @@ export function AppForm() {
         </p>
       )}
       <Button type="submit">Deploy App</Button>
+      {error?.message && (
+        <p className="text-sm font-medium text-destructive">{error.message}</p>
+      )}
     </form>
   )
 }
