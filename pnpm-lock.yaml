@@ -105,6 +105,9 @@ importers:
       prettier-plugin-astro:
         specifier: ^0.14.0
         version: 0.14.0
+      prettier-plugin-sql-cst:
+        specifier: ^0.11.5
+        version: 0.11.5
       wrangler:
         specifier: ^3.57.2
         version: 3.57.2(@cloudflare/workers-types@4.20240524.0)
@@ -3243,6 +3246,9 @@ packages:
     resolution: {integrity: sha512-7jRGJsexaRIyUzTk8uzXlP45cw6DQ5Ci4bTe0xCBCcuO1Fff8jJy9oI+kRCQKSdDFTSAArMSg8GpvzlKBtSaZA==}
     engines: {node: ^14.15.0 || >=16.0.0}
 
+  prettier-plugin-sql-cst@0.11.5:
+    resolution: {integrity: sha512-XwtwHSxNsOyyZdY+EaZoT5Sdd6nWF7U+8FE25kOomfISYwIXml/MMGnVIi3WiBhMbe5aclpys0n9rkgkyjnesA==}
+
   prettier@3.3.1:
     resolution: {integrity: sha512-7CAwy5dRsxs8PHXT3twixW9/OEll8MLE0VRPCJyl7CkS6VHGPSlsVaWTiASPTyGyYRyApxlaWTzwUxVNrhcwDg==}
     engines: {node: '>=14'}
@@ -3511,6 +3517,9 @@ packages:
 
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
+
+  sql-parser-cst@0.28.0:
+    resolution: {integrity: sha512-LNxy0X6C04iXRx83DXbK6PVwIvj1deEVN9wZAf139KeD32/oEQfFBL2RmXyElrgqCO99hQLJKbbQL40j4yx/uw==}
 
   stacktracey@2.1.8:
     resolution: {integrity: sha512-Kpij9riA+UNg7TnphqjH7/CzctQ/owJGNbFkfEeve4Z4uxT5+JapVLFXcsurIfN34gnTWZNJ/f7NMG0E8JDzTw==}
@@ -7325,6 +7334,11 @@ snapshots:
       prettier: 3.3.1
       sass-formatter: 0.7.9
 
+  prettier-plugin-sql-cst@0.11.5:
+    dependencies:
+      prettier: 3.3.1
+      sql-parser-cst: 0.28.0
+
   prettier@3.3.1: {}
 
   pretty-format@3.8.0: {}
@@ -7652,6 +7666,8 @@ snapshots:
   space-separated-tokens@2.0.2: {}
 
   sprintf-js@1.0.3: {}
+
+  sql-parser-cst@0.28.0: {}
 
   stacktracey@2.1.8:
     dependencies:

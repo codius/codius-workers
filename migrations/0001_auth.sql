@@ -1,36 +1,36 @@
 -- Migration number: 0001 	 2024-06-18T15:39:07.582Z
 
 CREATE TABLE IF NOT EXISTS "accounts" (
-  "id" text NOT NULL,
-  "userId" text NOT NULL,
-  "type" text NOT NULL,
-  "provider" text NOT NULL,
-  "providerAccountId" text NOT NULL,
-  "refresh_token" text DEFAULT NULL,
-  "access_token" text DEFAULT NULL,
-  "expires_at" number DEFAULT NULL,
-  "token_type" text DEFAULT NULL,
-  "scope" text DEFAULT NULL,
-  "id_token" text DEFAULT NULL,
-  "session_state" text DEFAULT NULL,
-  "oauth_token_secret" text DEFAULT NULL,
-  "oauth_token" text DEFAULT NULL,
+  "id" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "type" TEXT NOT NULL,
+  "provider" TEXT NOT NULL,
+  "providerAccountId" TEXT NOT NULL,
+  "refresh_token" TEXT DEFAULT NULL,
+  "access_token" TEXT DEFAULT NULL,
+  "expires_at" NUMBER DEFAULT NULL,
+  "token_type" TEXT DEFAULT NULL,
+  "scope" TEXT DEFAULT NULL,
+  "id_token" TEXT DEFAULT NULL,
+  "session_state" TEXT DEFAULT NULL,
+  "oauth_token_secret" TEXT DEFAULT NULL,
+  "oauth_token" TEXT DEFAULT NULL,
   PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS "sessions" (
-  "id" text NOT NULL,
-  "sessionToken" text NOT NULL,
-  "userId" text NOT NULL,
-  "expires" datetime NOT NULL, 
+  "id" TEXT NOT NULL,
+  "sessionToken" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "expires" DATETIME NOT NULL,
   PRIMARY KEY (sessionToken)
 );
 
 CREATE TABLE IF NOT EXISTS "users" (
-  "id" text NOT NULL DEFAULT '',
-  "name" text DEFAULT NULL,
-  "email" text DEFAULT NULL,
-  "emailVerified" datetime DEFAULT NULL,
-  "image" text DEFAULT NULL, 
+  "id" TEXT NOT NULL DEFAULT '',
+  "name" TEXT DEFAULT NULL,
+  "email" TEXT DEFAULT NULL,
+  "emailVerified" DATETIME DEFAULT NULL,
+  "image" TEXT DEFAULT NULL,
   PRIMARY KEY (id)
 );
