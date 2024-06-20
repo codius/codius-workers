@@ -8,11 +8,13 @@ CREATE TABLE IF NOT EXISTS "apps" (
   "branch" TEXT NOT NULL,
   "commitHash" TEXT NOT NULL,
   "directory" TEXT NOT NULL DEFAULT '/',
-  "status" TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('deployed', 'failed', 'pending')),
+  "status" TEXT NOT NULL DEFAULT 'pending' CHECK (
+    status IN ('deployed', 'failed', 'pending')
+  ),
   "createdAt" DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now')),
   "updatedAt" DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now')),
-  PRIMARY KEY (id)
-  UNIQUE(userId, githubOwner, repo, commitHash, directory)
+  PRIMARY KEY (id),
+  UNIQUE (userId, githubOwner, repo, commitHash, directory)
 );
 
 CREATE TABLE IF NOT EXISTS "apps_history" (
@@ -22,7 +24,9 @@ CREATE TABLE IF NOT EXISTS "apps_history" (
   "branch" TEXT NOT NULL,
   "commitHash" TEXT NOT NULL,
   "directory" TEXT,
-  "status" TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('deployed', 'failed', 'pending')),
+  "status" TEXT NOT NULL DEFAULT 'pending' CHECK (
+    status IN ('deployed', 'failed', 'pending')
+  ),
   "updatedAt" DATETIME,
   "historyTimestamp" DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now'))
 );
@@ -30,6 +34,26 @@ CREATE TABLE IF NOT EXISTS "apps_history" (
 CREATE TRIGGER "after_app_update"
 AFTER UPDATE ON "apps"
 BEGIN
-  INSERT INTO "apps_history" ("id", "githubOwner", "repo", "branch", "commitHash", "directory", "status", "updatedAt")
-  VALUES (OLD."id", OLD."githubOwner", OLD."repo", OLD."branch", OLD."commitHash", OLD."directory", OLD."status", OLD."updatedAt");
+  INSERT INTO "apps_history"
+    (
+      "id",
+      "githubOwner",
+      "repo",
+      "branch",
+      "commitHash",
+      "directory",
+      "status",
+      "updatedAt"
+    )
+  VALUES
+    (
+      OLD."id",
+      OLD."githubOwner",
+      OLD."repo",
+      OLD."branch",
+      OLD."commitHash",
+      OLD."directory",
+      OLD."status",
+      OLD."updatedAt"
+    );
 END;
