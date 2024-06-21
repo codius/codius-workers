@@ -24,10 +24,12 @@ export function initializeLucia(D1: D1Database) {
   })
 }
 
-export const github = new GitHub(
-  import.meta.env.GITHUB_CLIENT_ID,
-  import.meta.env.GITHUB_CLIENT_SECRET,
-)
+export function initializeGitHub(
+  githubClientId: string,
+  githubClientSecret: string,
+) {
+  return new GitHub(githubClientId, githubClientSecret)
+}
 
 declare module "lucia" {
   interface Register {

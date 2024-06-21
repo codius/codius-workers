@@ -1,4 +1,3 @@
-import { github } from "@/lib/auth"
 import { OAuth2RequestError } from "arctic"
 import type { APIContext } from "astro"
 import { generateIdFromEntropySize } from "lucia"
@@ -18,7 +17,7 @@ export async function GET(context: APIContext): Promise<Response> {
   }
 
   try {
-    const tokens = await github.validateAuthorizationCode(code)
+    const tokens = await context.locals.github.validateAuthorizationCode(code)
     const githubUserResponse = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `Bearer ${tokens.accessToken}`,
