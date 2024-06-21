@@ -8,9 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getSession } from "auth-astro/server"
-
-const session = await getSession(Astro.request)
 
 type AppRow = {
   id: string
@@ -26,7 +23,7 @@ type AppRow = {
 const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
   "SELECT * FROM apps WHERE userId = ?1",
 )
-  .bind(session.user.email)
+  .bind(Astro.locals.user.id)
   .all<AppRow>()
 ---
 

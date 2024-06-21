@@ -1,11 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro"
 import Login from "../components/Login.astro"
-import { getSession } from "auth-astro/server"
 
-const session = await getSession(Astro.request)
-
-if (session) {
+if (Astro.locals.user) {
   return Astro.redirect("/apps")
 }
 ---

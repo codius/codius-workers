@@ -3,11 +3,8 @@ import { AppForm } from "../components/AppForm"
 import UserAppsTable from "../components/UserAppsTable.astro"
 import Logout from "../components/Logout.astro"
 import Layout from "../layouts/Layout.astro"
-import { getSession } from "auth-astro/server"
 
-const session = await getSession(Astro.request)
-
-if (!session) {
+if (!Astro.locals.user) {
   return Astro.redirect("/")
 }
 ---
