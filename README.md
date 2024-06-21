@@ -52,21 +52,23 @@ pnpm dlx wrangler d1 migrations apply <your-d1-db-name> --local
 
 ### Environment Variables
 
+Environment variables are managed in [wrangler.toml](./wrangler.toml) and secrets in `.dev.vars`.
+
 ```bash
 cp .example.dev.vars .dev.vars
 ```
 
-For [`AUTH_SECRET`](https://github.com/nowaythatworked/auth-astro?tab=readme-ov-file#setup-environment-variables) in `.dev.vars`:
+### GitHub OAuth App
 
->Generate an auth secret by running `openssl rand -hex 32` in a local terminal or by visiting [generate-secret.vercel.app](https://generate-secret.vercel.app/32), copy the string, then set it as the `AUTH_SECRET` environment variable describe below.
-
-For `DB`, use the name of the D1 database you created.
-
-For `GITHUB_APP_NAME`, `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in `.dev.vars`, you'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) with:
+You'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) with:
 
 ![alt text](assets/image.png)
 
 > **Note:** Use `127.0.0.1:8788` if running with `pnpm run dev` instead of `pnpm run preview`
+
+Update `GITHUB_APP_NAME` and `GITHUB_CLIENT_ID` in [wrangler.toml](./wrangler.toml) with the values from the GitHub OAuth App.
+
+Update `GITHUB_CLIENT_SECRET` in `.dev.vars` with the value from the GitHub OAuth App.
 
 ## 🧞 Commands
 
