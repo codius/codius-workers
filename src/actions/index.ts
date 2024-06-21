@@ -1,5 +1,4 @@
 import { ActionError, defineAction, z } from "astro:actions"
-import { getSession } from "auth-astro/server"
 import { customAlphabet } from "nanoid"
 
 const nanoid: () => string = customAlphabet(
@@ -27,7 +26,6 @@ export const server = {
     // https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#access-api-context
     handler: async ({ repoUrl, branch, directory }, context) => {
       try {
-        const session = await getSession(context.request)
         const repoPath = new URL(repoUrl).pathname
         const [owner, repo] = repoPath.substring(1).split("/")
 
@@ -35,7 +33,8 @@ export const server = {
         const branchUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${branch}`
         const commitHash = await fetch(branchUrl, {
           headers: {
-            Authorization: `token ${session.accessToken}`,
+            // TODO: store and use the user's GitHub access token
+            // Authorization: `token ${session.accessToken}`,
             "User-Agent": import.meta.env.GITHUB_APP_NAME,
           },
         }).then((res) => res.json())
@@ -46,7 +45,7 @@ export const server = {
         )
           .bind(
             appId,
-            session.user.email,
+            context.locals.user.id,
             owner,
             repo,
             branch,

@@ -2,7 +2,6 @@ import cloudflare from "@astrojs/cloudflare"
 import react from "@astrojs/react"
 import tailwind from "@astrojs/tailwind"
 import { defineConfig } from "astro/config"
-import auth from "auth-astro"
 
 // https://astro.build/config
 export default defineConfig({
@@ -16,7 +15,10 @@ export default defineConfig({
       configPath: "wrangler.toml",
     },
   }),
-  integrations: [auth(), react(), tailwind({ applyBaseStyles: false })],
+  integrations: [react(), tailwind({ applyBaseStyles: false })],
+  security: {
+    checkOrigin: true,
+  },
   vite: {
     build: {
       minify: false,

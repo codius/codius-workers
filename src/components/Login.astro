@@ -1,21 +1,14 @@
 ---
-import { Button } from "@/components/ui/button"
 import { FiGithub } from "react-icons/fi"
 ---
 
-<Button id="login">
+<a
+  href="/login/github"
+  class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+  role="button"
+>
   <span class="icon"><FiGithub /></span> Log in with GitHub
-</Button>
-
-<script>
-  import { signIn } from "auth-astro/client"
-
-  const loginButton = document.querySelector("#login")
-
-  if (loginButton !== null) {
-    loginButton.addEventListener("click", () => signIn("github"))
-  }
-</script>
+</a>
 
 <style>
   .icon {
