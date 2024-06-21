@@ -24,7 +24,7 @@ There's nothing special about `src/components/`, but that's where we like to put
 
 Any static assets, like images, can be placed in the `public/` directory.
 
-## :puzzle: Components
+## :jigsaw: Components
 
 ### Cloudflare Pages
 
@@ -43,6 +43,12 @@ Any static assets, like images, can be placed in the `public/` directory.
 pnpm dlx wrangler d1 create <your-d1-db-name>
 pnpm dlx wrangler d1 migrations apply <your-d1-db-name> --local
 ```
+
+> **Note:** Rollback local migrations by deleting the state files with the following command:
+>
+> ```bash
+> rm .wrangler/state/v3/d1/miniflare-D1DatabaseObject/*
+> ```
 
 ### Environment Variables
 
