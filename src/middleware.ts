@@ -1,10 +1,15 @@
-import { initializeLucia } from "@/lib/auth"
+import { initializeLucia, initializeGitHub } from "@/lib/auth"
 import { defineMiddleware } from "astro:middleware"
 import { verifyRequestOrigin } from "lucia"
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const lucia = initializeLucia(context.locals.runtime.env.DB)
   context.locals.lucia = lucia
+  const github = initializeGitHub(
+    context.locals.runtime.env.GITHUB_CLIENT_ID,
+    context.locals.runtime.env.GITHUB_CLIENT_SECRET,
+  )
+  context.locals.github = github
   const sessionId = context.cookies.get(lucia.sessionCookieName)?.value ?? null
   if (!sessionId) {
     context.locals.user = null
