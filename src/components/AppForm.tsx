@@ -84,6 +84,22 @@ export function AppForm() {
           {fieldErrors.branch}
         </p>
       )}
+      <Label
+        htmlFor="directory"
+        className={fieldErrors.directory && "text-destructive"}
+      >
+        Directory
+      </Label>
+      <Input type="text" id="directory" name="directory" />
+      <p className="text-sm text-muted-foreground">
+        The directory within the repository where the worker is located
+        (optional)
+      </p>
+      {fieldErrors.directory && (
+        <p className="text-sm font-medium text-destructive">
+          {fieldErrors.directory}
+        </p>
+      )}
       <Button type="submit">Deploy App</Button>
       {error?.message && (
         <p className="text-sm font-medium text-destructive">{error.message}</p>
