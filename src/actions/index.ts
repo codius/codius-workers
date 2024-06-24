@@ -7,6 +7,23 @@ const nanoid: () => string = customAlphabet(
 )
 
 export const server = {
+  deleteApp: defineAction({
+    input: z.object({
+      id: z.string(),
+    }),
+    handler: async ({ id }, context) => {
+      // TODO: delete worker
+
+      const info = await context.locals.runtime.env.DB.prepare(
+        "DELETE FROM apps WHERE id = ?1",
+      )
+        .bind(id)
+        .run()
+      console.log(info)
+
+      return { success: true }
+    },
+  }),
   deployApp: defineAction({
     accept: "form",
     input: z.object({

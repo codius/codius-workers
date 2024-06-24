@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { FiTrash2 } from "react-icons/fi"
 
 type AppRow = {
   id: string
@@ -34,6 +35,7 @@ const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
       <TableHead>Repo</TableHead>
       <TableHead>Commit</TableHead>
       <TableHead>Status</TableHead>
+      <TableHead>Actions</TableHead>
     </TableRow>
   </TableHeader>
   <TableBody>
@@ -69,8 +71,31 @@ const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
             </a>
           </TableCell>
           <TableCell>{app.status}</TableCell>
+          <TableCell>
+            <button
+              aria-label="Delete app"
+              class="delete-app"
+              data-app-id={app.id}
+            >
+              <FiTrash2 />
+            </button>
+          </TableCell>
         </TableRow>
       ))
     }
   </TableBody>
 </Table>
+
+<script>
+  import { actions } from "astro:actions"
+
+  const deleteButtons = document.querySelectorAll("button.delete-app")
+
+  deleteButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      const appId = button.dataset.appId
+      await actions.deleteApp({ id: appId })
+      window.location.reload()
+    })
+  })
+</script>
