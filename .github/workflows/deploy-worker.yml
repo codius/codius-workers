@@ -1,0 +1,40 @@
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'GitHub repository name'
+        required: true
+      branch:
+        description: 'GitHub branch name'
+        required: true
+      directory:
+        description: 'Directory to deploy'
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.repo }}
+          ref: ${{ github.event.inputs.branch }}
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: ${{ github.event.inputs.directory }}
+      # - name: Webhook on Success
+      #   if: success()
+      #   run: |
+      #     curl -X POST -H "Content-Type: application/json" -d '{"status": "success"}' YOUR_WEBHOOK_URL_ON_SUCCESS
+      #   env:
+      #     YOUR_WEBHOOK_URL_ON_SUCCESS: ${{ secrets.YOUR_WEBHOOK_URL_ON_SUCCESS }}
+      # - name: Webhook on Failure
+      #   if: failure()
+      #   run: |
+      #     curl -X POST -H "Content-Type: application/json" -d '{"status": "failure"}' YOUR_WEBHOOK_URL_ON_FAILURE
+      #   env:
+      #     YOUR_WEBHOOK_URL_ON_FAILURE: ${{ secrets.YOUR_WEBHOOK_URL_ON_FAILURE }}
