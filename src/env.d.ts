@@ -5,6 +5,7 @@ type ENV = {
   GITHUB_APP_NAME: string
   GITHUB_CLIENT_ID: string
   GITHUB_CLIENT_SECRET: string
+  GITHUB_ACCESS_TOKEN: string
   DB: D1Database
 }
 

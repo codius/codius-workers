@@ -58,7 +58,7 @@ Environment variables are managed in [wrangler.toml](./wrangler.toml) and secret
 cp .example.dev.vars .dev.vars
 ```
 
-### GitHub OAuth App
+#### GitHub OAuth App
 
 You'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) with:
 
@@ -69,6 +69,16 @@ You'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring
 Update `GITHUB_APP_NAME` and `GITHUB_CLIENT_ID` in [wrangler.toml](./wrangler.toml) with the values from the GitHub OAuth App.
 
 Update `GITHUB_CLIENT_SECRET` in `.dev.vars` with the value from the GitHub OAuth App.
+
+#### GitHub Access Token
+
+You'll need to [create a GitHub Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) with Read and Write access to actions in order for codius-astro to deploy workers via its [GitHub Actions workflow](./.github/workflows/deploy-worker.yml).
+
+Update `GITHUB_ACCESS_TOKEN` in `.dev.vars` with the value from the GitHub Access Token.
+
+#### Secrets
+
+Add `GITHUB_CLIENT_SECRET` and `GITHUB_ACCESS_TOKEN` to your Cloudflare Pages project as [encrypted secrets](https://developers.cloudflare.com/pages/functions/bindings/#secrets).
 
 ## 🧞 Commands
 

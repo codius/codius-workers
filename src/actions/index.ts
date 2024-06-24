@@ -1,5 +1,6 @@
 import { ActionError, defineAction, z } from "astro:actions"
 import { customAlphabet } from "nanoid"
+import { Octokit, RequestError } from "octokit"
 
 const nanoid: () => string = customAlphabet(
   "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",
@@ -71,6 +72,32 @@ export const server = {
           )
           .run()
         console.log(info)
+
+        // https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
+        const octokit = new Octokit({
+          auth: context.locals.runtime.env.GITHUB_ACCESS_TOKEN,
+        })
+
+        const { data } = await octokit.request(
+          "POST /repos/codius/codius-astro/actions/workflows/{workflow_id}/dispatches",
+          {
+            workflow_id: "deploy-worker.yml",
+            // TODO: main
+            ref: "github-action",
+            inputs: {
+              repo: `${owner}/${repo}`,
+              // TODO: commitHash
+              branch,
+              directory,
+            },
+            headers: {
+              "X-GitHub-Api-Version": "2022-11-28",
+            },
+          },
+        )
+
+        console.log(data)
+
         return { success: true }
       } catch (e) {
         console.error(e)
@@ -79,6 +106,11 @@ export const server = {
           throw new ActionError({
             code: "CONFLICT",
             message: "An app with these details already exists.",
+          })
+        } else if (e instanceof RequestError) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: "Invalid repo URL.",
           })
         }
 
