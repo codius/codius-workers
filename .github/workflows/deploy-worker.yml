@@ -18,6 +18,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: ${{github.event.inputs.appId}}
+        run: echo run identifier ${{ github.run_id }}
       - name: Checkout
         uses: actions/checkout@v4
         with:
