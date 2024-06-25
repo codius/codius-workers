@@ -1,6 +1,7 @@
+import { getCommit, triggerWorkflow } from "@/lib/github"
 import { ActionError, defineAction, z } from "astro:actions"
 import { customAlphabet } from "nanoid"
-import { Octokit, RequestError } from "octokit"
+import { RequestError } from "octokit"
 
 const nanoid: () => string = customAlphabet(
   // Cloudflare worker names must be lowercase alphanumeric
@@ -49,14 +50,7 @@ export const server = {
         const [owner, repo] = repoPath.substring(1).split("/")
 
         // fetch the head commit for repo + branch from GitHub
-        const branchUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${branch}`
-        const commitHash = await fetch(branchUrl, {
-          headers: {
-            // TODO: store and use the user's GitHub access token
-            // Authorization: `token ${session.accessToken}`,
-            "User-Agent": import.meta.env.GITHUB_APP_NAME,
-          },
-        }).then((res) => res.json())
+        const commit = await getCommit({ owner, repo, branch })
 
         const appId = nanoid()
         const info = await context.locals.runtime.env.DB.prepare(
@@ -68,36 +62,19 @@ export const server = {
             owner,
             repo,
             branch,
-            commitHash.sha,
+            commit.sha,
             directory || "/",
           )
           .run()
         console.log(info)
 
-        // https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
-        const octokit = new Octokit({
-          auth: context.locals.runtime.env.GITHUB_ACCESS_TOKEN,
+        await triggerWorkflow(context.locals.runtime.env.GITHUB_ACCESS_TOKEN, {
+          appId,
+          owner,
+          repo,
+          commitHash: commit.sha,
+          directory,
         })
-
-        const { data } = await octokit.request(
-          "POST /repos/codius/codius-astro/actions/workflows/{workflow_id}/dispatches",
-          {
-            workflow_id: "deploy-worker.yml",
-            // TODO: main
-            ref: "github-action",
-            inputs: {
-              appId,
-              repo: `${owner}/${repo}`,
-              commit: commitHash.sha,
-              directory,
-            },
-            headers: {
-              "X-GitHub-Api-Version": "2022-11-28",
-            },
-          },
-        )
-
-        console.log(data)
 
         return { success: true }
       } catch (e) {
