@@ -1,6 +1,9 @@
 on:
   workflow_dispatch:
     inputs:
+      appId:
+        description: 'Worker App ID'
+        required: true
       repo:
         description: 'GitHub repository name'
         required: true
@@ -26,6 +29,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ${{ github.event.inputs.directory }}
+          command: deploy --name=${{ github.event.inputs.appId }}
       # - name: Webhook on Success
       #   if: success()
       #   run: |

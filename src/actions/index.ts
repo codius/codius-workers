@@ -3,7 +3,8 @@ import { customAlphabet } from "nanoid"
 import { Octokit, RequestError } from "octokit"
 
 const nanoid: () => string = customAlphabet(
-  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",
+  // Cloudflare worker names must be lowercase alphanumeric
+  "123456789abcdefghijkmnopqrstuvwxyz",
   16,
 )
 
@@ -85,6 +86,7 @@ export const server = {
             // TODO: main
             ref: "github-action",
             inputs: {
+              appId,
               repo: `${owner}/${repo}`,
               commit: commitHash.sha,
               directory,

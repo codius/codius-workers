@@ -33,7 +33,7 @@ const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
   <TableHeader>
     <TableRow>
       <TableHead>Repo</TableHead>
-      <TableHead>Commit</TableHead>
+      <TableHead>URL</TableHead>
       <TableHead>Status</TableHead>
       <TableHead>Actions</TableHead>
     </TableRow>
@@ -53,7 +53,7 @@ const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
         <TableRow key={app.id}>
           <TableCell>
             <a
-              href={`https://github.com/${app.githubOwner}/${app.repo}`}
+              href={`https://github.com/${app.githubOwner}/${app.repo}/commit/${app.commitHash}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -63,11 +63,11 @@ const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
 
           <TableCell>
             <a
-              href={`https://github.com/${app.githubOwner}/${app.repo}/commit/${app.commitHash}`}
+              href={`https://${app.id}.brandon-4fb.workers.dev`}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {app.commitHash}
+              {`https://${app.id}.brandon-4fb.workers.dev`}
             </a>
           </TableCell>
           <TableCell>{app.status}</TableCell>
