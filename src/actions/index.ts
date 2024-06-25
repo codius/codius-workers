@@ -86,8 +86,7 @@ export const server = {
             ref: "github-action",
             inputs: {
               repo: `${owner}/${repo}`,
-              // TODO: commitHash
-              branch,
+              commit: commitHash.sha,
               directory,
             },
             headers: {

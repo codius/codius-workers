@@ -4,8 +4,8 @@ on:
       repo:
         description: 'GitHub repository name'
         required: true
-      branch:
-        description: 'GitHub branch name'
+      commit:
+        description: 'Git commit hash'
         required: true
       directory:
         description: 'Directory to deploy'
