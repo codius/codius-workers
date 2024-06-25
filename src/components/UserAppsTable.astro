@@ -19,6 +19,8 @@ type AppRow = {
   commitHash: string
   directory: string | null
   status: string
+  githubWorkflowJobId: string | null
+  githubWorkflowRunId: string | null
 }
 
 const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
@@ -53,7 +55,7 @@ const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
         <TableRow key={app.id}>
           <TableCell>
             <a
-              href={`https://github.com/${app.githubOwner}/${app.repo}/commit/${app.commitHash}`}
+              href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -70,7 +72,19 @@ const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
               {`https://${app.id}.brandon-4fb.workers.dev`}
             </a>
           </TableCell>
-          <TableCell>{app.status}</TableCell>
+          <TableCell>
+            {app.githubWorkflowRunId && app.githubWorkflowJobId ? (
+              <a
+                href={`https://github.com/codius/codius-astro/actions/runs/${app.githubWorkflowRunId}/job/${app.githubWorkflowJobId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {app.status}
+              </a>
+            ) : (
+              app.status
+            )}
+          </TableCell>
           <TableCell>
             <button
               aria-label="Delete app"

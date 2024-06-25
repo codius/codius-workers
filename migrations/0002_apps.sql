@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS "apps" (
   "status" TEXT NOT NULL DEFAULT 'pending' CHECK (
     status IN ('deployed', 'failed', 'pending')
   ),
+  "githubWorkflowJobId" TEXT,
+  "githubWorkflowRunId" TEXT,
   "createdAt" DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now')),
   "updatedAt" DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now')),
   PRIMARY KEY (id),
@@ -27,6 +29,8 @@ CREATE TABLE IF NOT EXISTS "apps_history" (
   "status" TEXT NOT NULL DEFAULT 'pending' CHECK (
     status IN ('deployed', 'failed', 'pending')
   ),
+  "githubWorkflowJobId" TEXT,
+  "githubWorkflowRunId" TEXT,
   "updatedAt" DATETIME,
   "historyTimestamp" DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now'))
 );
@@ -43,6 +47,8 @@ BEGIN
       "commitHash",
       "directory",
       "status",
+      "githubWorkflowJobId",
+      "githubWorkflowRunId",
       "updatedAt"
     )
   VALUES
@@ -54,6 +60,8 @@ BEGIN
       OLD."commitHash",
       OLD."directory",
       OLD."status",
+      OLD."githubWorkflowJobId",
+      OLD."githubWorkflowRunId",
       OLD."updatedAt"
     );
 END;

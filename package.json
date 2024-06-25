@@ -11,7 +11,8 @@
     "deploy": "astro build && wrangler pages deploy",
     "cf-typegen": "wrangler types",
     "lint": "eslint \"./*.mjs\" \"src/**/*.{js,ts,tsx,astro}\" && prettier --check \"./*.mjs\" \"src/**/*.{js,ts,tsx,astro}\" \"migrations/*.sql\"",
-    "format": "prettier --write \"./*.mjs\" \"src/**/*.{js,ts,tsx,astro}\" \"migrations/*.sql\""
+    "format": "prettier --write \"./*.mjs\" \"src/**/*.{js,ts,tsx,astro}\" \"migrations/*.sql\"",
+    "smee": "smee --path /webhooks/github/workflow-job --port 8788"
   },
   "dependencies": {
     "@astrojs/check": "^0.7.0",
@@ -52,6 +53,7 @@
     "prettier": "^3.3.1",
     "prettier-plugin-astro": "^0.14.0",
     "prettier-plugin-sql-cst": "^0.11.5",
+    "smee-client": "^2.0.1",
     "wrangler": "^3.57.2"
   }
 }
