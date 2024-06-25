@@ -1,29 +1,5 @@
 # Codius Astro
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── GitHubAuth.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
 ## :jigsaw: Components
 
 ### Cloudflare Pages
@@ -62,7 +38,7 @@ cp .example.dev.vars .dev.vars
 
 You'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) with:
 
-![alt text](assets/image.png)
+![GitHub OAuth app](assets/oauth-app.png)
 
 > **Note:** Use `127.0.0.1:8788` if running with `pnpm run dev` instead of `pnpm run preview`
 
@@ -76,9 +52,18 @@ You'll need to [create a GitHub Access Token](https://docs.github.com/en/authent
 
 Update `GITHUB_ACCESS_TOKEN` in `.dev.vars` with the value from the GitHub Access Token.
 
+#### GitHub Webhook
+
+You'll need to [create a GitHub repository webhook](https://docs.github.com/en/webhooks/using-webhooks/creating-webhooks#creating-a-repository-webhook) with the following settings:
+
+![Webhook settings](assets/webhook.png)
+![Webhook event](assets/webhook-event.png)
+
+Update `GITHUB_WEBHOOK_SECRET` in `.dev.vars` with the value from the GitHub Webhook.
+
 #### Secrets
 
-Add `GITHUB_CLIENT_SECRET` and `GITHUB_ACCESS_TOKEN` to your Cloudflare Pages project as [encrypted secrets](https://developers.cloudflare.com/pages/functions/bindings/#secrets).
+Add `GITHUB_CLIENT_SECRET`, `GITHUB_ACCESS_TOKEN`, and `GITHUB_WEBHOOK_SECRET` to your Cloudflare Pages project as [encrypted secrets](https://developers.cloudflare.com/pages/functions/bindings/#secrets).
 
 ## 🧞 Commands
 
