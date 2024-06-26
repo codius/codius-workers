@@ -32,15 +32,3 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ${{ github.event.inputs.directory }}
           command: deploy --name=${{ github.event.inputs.appId }}
-      # - name: Webhook on Success
-      #   if: success()
-      #   run: |
-      #     curl -X POST -H "Content-Type: application/json" -d '{"status": "success"}' YOUR_WEBHOOK_URL_ON_SUCCESS
-      #   env:
-      #     YOUR_WEBHOOK_URL_ON_SUCCESS: ${{ secrets.YOUR_WEBHOOK_URL_ON_SUCCESS }}
-      # - name: Webhook on Failure
-      #   if: failure()
-      #   run: |
-      #     curl -X POST -H "Content-Type: application/json" -d '{"status": "failure"}' YOUR_WEBHOOK_URL_ON_FAILURE
-      #   env:
-      #     YOUR_WEBHOOK_URL_ON_FAILURE: ${{ secrets.YOUR_WEBHOOK_URL_ON_FAILURE }}
