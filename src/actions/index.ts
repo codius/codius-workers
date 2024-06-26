@@ -15,14 +15,29 @@ export const server = {
       id: z.string(),
     }),
     handler: async ({ id }, context) => {
-      // TODO: delete worker
-
       const info = await context.locals.runtime.env.DB.prepare(
         "DELETE FROM apps WHERE id = ?1",
       )
         .bind(id)
         .run()
       console.log(info)
+
+      // TODO: check if worker exists before attempting to delete
+
+      // Workers for Platforms
+      // https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}
+      const url = `https://api.cloudflare.com/client/v4/accounts/${context.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${id}`
+
+      const options = {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${context.locals.runtime.env.CLOUDFLARE_API_TOKEN}`,
+        },
+      }
+
+      const res = await fetch(url, options)
+      console.log(await res.json())
 
       return { success: true }
     },
