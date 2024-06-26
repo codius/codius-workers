@@ -15,12 +15,7 @@ export const server = {
       id: z.string(),
     }),
     handler: async ({ id }, context) => {
-      const info = await context.locals.runtime.env.DB.prepare(
-        "DELETE FROM apps WHERE id = ?1",
-      )
-        .bind(id)
-        .run()
-      console.log(info)
+      await context.locals.db.apps.delete(id)
 
       // TODO: check if worker exists before attempting to delete
 
@@ -68,20 +63,16 @@ export const server = {
         const commit = await getCommit({ owner, repo, branch })
 
         const appId = nanoid()
-        const info = await context.locals.runtime.env.DB.prepare(
-          "INSERT INTO apps (id, userId, githubOwner, repo, branch, commitHash, directory) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-        )
-          .bind(
-            appId,
-            context.locals.user.id,
-            owner,
-            repo,
-            branch,
-            commit.sha,
-            directory || "/",
-          )
-          .run()
-        console.log(info)
+
+        await context.locals.db.apps.create({
+          id: appId,
+          userId: context.locals.user.id,
+          githubOwner: owner,
+          repo,
+          branch,
+          commitHash: commit.sha,
+          directory,
+        })
 
         await triggerWorkflow(context.locals.runtime.env.GITHUB_ACCESS_TOKEN, {
           appId,

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS "apps" (
   "repo" TEXT NOT NULL,
   "branch" TEXT NOT NULL,
   "commitHash" TEXT NOT NULL,
-  "directory" TEXT NOT NULL DEFAULT '/',
+  "directory" TEXT NOT NULL DEFAULT '',
   "status" TEXT NOT NULL DEFAULT 'pending' CHECK (
     status IN ('deployed', 'failed', 'pending')
   ),

@@ -16,34 +16,21 @@ export async function POST(context: APIContext): Promise<Response> {
       data.payload.workflow_job.steps[1]
     ) {
       const appId = data.payload.workflow_job.steps[1].name
-      const jobId = String(data.payload.workflow_job.id)
-      const runId = String(data.payload.workflow_job.run_id)
 
-      const info = await context.locals.runtime.env.DB.prepare(
-        "UPDATE apps SET githubWorkflowJobId = ?1, githubWorkflowRunId = ?2 WHERE id = ?3",
+      await context.locals.db.apps.updateGitHubWorkflowJob(
+        appId,
+        data.payload.workflow_job,
       )
-        .bind(jobId, runId, appId)
-        .run()
-      console.log(info)
     }
   })
 
   webhooks.on("workflow_job.completed", async (data) => {
     if (data.payload.workflow_job.workflow_name === WORKFLOW_NAME) {
       const appId = data.payload.workflow_job.steps[1].name
-      const jobId = String(data.payload.workflow_job.id)
-      const runId = String(data.payload.workflow_job.run_id)
-      const status =
-        data.payload.workflow_job.conclusion === "success"
-          ? "deployed"
-          : "failed"
-
-      const info = await context.locals.runtime.env.DB.prepare(
-        "UPDATE apps SET githubWorkflowJobId = ?1, githubWorkflowRunId = ?2, status = ?3 WHERE id = ?4",
+      await context.locals.db.apps.updateCompletedGitHubWorkflowJob(
+        appId,
+        data.payload.workflow_job,
       )
-        .bind(jobId, runId, status, appId)
-        .run()
-      console.log(info)
     }
   })
 

@@ -10,24 +10,7 @@ import {
 } from "@/components/ui/table"
 import { FiTrash2 } from "react-icons/fi"
 
-type AppRow = {
-  id: string
-  userId: string
-  githubOwner: string
-  repo: string
-  branch: string
-  commitHash: string
-  directory: string | null
-  status: string
-  githubWorkflowJobId: string | null
-  githubWorkflowRunId: string | null
-}
-
-const { results: apps } = await Astro.locals.runtime.env.DB.prepare(
-  "SELECT * FROM apps WHERE userId = ?1",
-)
-  .bind(Astro.locals.user.id)
-  .all<AppRow>()
+const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
 ---
 
 <Table>
