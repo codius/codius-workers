@@ -1,13 +1,6 @@
 import { getCommit, triggerWorkflow } from "@/lib/github"
 import { ActionError, defineAction, z } from "astro:actions"
-import { customAlphabet } from "nanoid"
 import { RequestError } from "octokit"
-
-const nanoid: () => string = customAlphabet(
-  // Cloudflare worker names must be lowercase alphanumeric
-  "123456789abcdefghijkmnopqrstuvwxyz",
-  16,
-)
 
 export const server = {
   deleteApp: defineAction({
@@ -15,24 +8,23 @@ export const server = {
       id: z.string(),
     }),
     handler: async ({ id }, context) => {
-      await context.locals.db.apps.delete(id)
+      const app = await context.locals.db.apps.delete(id)
+      if (app.status === "deployed") {
+        // Workers for Platforms
+        // https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}
+        const url = `https://api.cloudflare.com/client/v4/accounts/${context.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${id}`
 
-      // TODO: check if worker exists before attempting to delete
+        const options = {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${context.locals.runtime.env.CLOUDFLARE_API_TOKEN}`,
+          },
+        }
 
-      // Workers for Platforms
-      // https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}
-      const url = `https://api.cloudflare.com/client/v4/accounts/${context.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${id}`
-
-      const options = {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${context.locals.runtime.env.CLOUDFLARE_API_TOKEN}`,
-        },
+        const res = await fetch(url, options)
+        console.log(await res.json())
       }
-
-      const res = await fetch(url, options)
-      console.log(await res.json())
 
       return { success: true }
     },
@@ -62,10 +54,7 @@ export const server = {
         // fetch the head commit for repo + branch from GitHub
         const commit = await getCommit({ owner, repo, branch })
 
-        const appId = nanoid()
-
-        await context.locals.db.apps.create({
-          id: appId,
+        const app = await context.locals.db.apps.create({
           userId: context.locals.user.id,
           githubOwner: owner,
           repo,
@@ -75,7 +64,7 @@ export const server = {
         })
 
         await triggerWorkflow(context.locals.runtime.env.GITHUB_ACCESS_TOKEN, {
-          appId,
+          appId: app.id,
           owner,
           repo,
           commitHash: commit.sha,

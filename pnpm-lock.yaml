@@ -89,6 +89,9 @@ importers:
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
+      workers-qb:
+        specifier: ^1.3.0
+        version: 1.3.0
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -4160,6 +4163,9 @@ packages:
     resolution: {integrity: sha512-LWLe5D8PVHBcqturmBbwgI71r7YPpIMYZoVEH6S4G35EqIJ55cb0n3FipoSyraoIfpcCxCFxX1K6WsRHbP3pFA==}
     engines: {node: '>=16'}
     hasBin: true
+
+  workers-qb@1.3.0:
+    resolution: {integrity: sha512-7Yb4ewNaqx/cFXcTzIqfhF6mSVtI5QJ/NLdsyM/d73Vzx0YiUw603G+ggVOzZkMq1YJqPjf0GL0jC1zLHiBLRQ==}
 
   wrangler@3.57.2:
     resolution: {integrity: sha512-QegYf0FW+4prlFKE9iHr1EGrCo8ejcGL9gaqEXrzQ0vbTdazykYbY0I5UpHFLNq2dIF9I/ifEoLRKr636tyHEw==}
@@ -8528,6 +8534,8 @@ snapshots:
       '@cloudflare/workerd-linux-64': 1.20240524.0
       '@cloudflare/workerd-linux-arm64': 1.20240524.0
       '@cloudflare/workerd-windows-64': 1.20240524.0
+
+  workers-qb@1.3.0: {}
 
   wrangler@3.57.2(@cloudflare/workers-types@4.20240524.0):
     dependencies:

@@ -1,7 +1,8 @@
+import { nanoid } from "./utils"
 import type { WorkflowJob } from "@octokit/webhooks-types"
+import { D1QB } from "workers-qb"
 
 type CreateAppOptions = {
-  id: string
   userId: string
   githubOwner: string
   repo: string
@@ -28,10 +29,12 @@ type App = {
 }
 
 export class Apps {
-  constructor(private db: D1Database) {}
+  private qb: D1QB
+  constructor(d1: D1Database) {
+    this.qb = new D1QB(d1)
+  }
 
   async create({
-    id,
     userId,
     githubOwner,
     repo,
@@ -39,50 +42,87 @@ export class Apps {
     commitHash,
     directory,
   }: CreateAppOptions) {
-    return this.db
-      .prepare(
-        "INSERT INTO apps (id, userId, githubOwner, repo, branch, commitHash, directory) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-      )
-      .bind(id, userId, githubOwner, repo, branch, commitHash, directory || "")
-      .run()
+    const { results: app } = await this.qb
+      .insert<App>({
+        tableName: "apps",
+        data: {
+          id: nanoid(),
+          userId,
+          githubOwner,
+          repo,
+          branch,
+          commitHash,
+          directory: directory || "",
+        },
+        returning: "*",
+      })
+      .execute()
+    return app
   }
 
   async delete(id: string) {
-    return this.db.prepare("DELETE FROM apps WHERE id = ?1").bind(id).run()
-  }
-
-  async getById(id: string) {
-    return this.db
-      .prepare("SELECT * FROM apps WHERE id = ?1")
-      .bind(id)
-      .first<App>()
+    const { results } = await this.qb
+      .delete<App>({
+        tableName: "apps",
+        where: {
+          conditions: "id = ?1",
+          params: [id],
+        },
+        returning: "*",
+      })
+      .execute()
+    return results?.[0]
   }
 
   async getByUserId(userId: string) {
-    const { results } = await this.db
-      .prepare("SELECT * FROM apps WHERE userId = ?1")
-      .bind(userId)
-      .all<App>()
+    const { results } = await this.qb
+      .fetchAll<App>({
+        tableName: "apps",
+        where: {
+          conditions: "userId = ?1",
+          params: [userId],
+        },
+      })
+      .execute()
     return results
   }
 
   async updateGitHubWorkflowJob(id: string, workflowJob: WorkflowJob) {
-    return this.db
-      .prepare(
-        "UPDATE apps SET githubWorkflowJobId = ?1, githubWorkflowRunId = ?2 WHERE id = ?3",
-      )
-      .bind(String(workflowJob.id), String(workflowJob.run_id), id)
-      .run()
+    const { results } = await this.qb
+      .update<App>({
+        tableName: "apps",
+        data: {
+          githubWorkflowJobId: String(workflowJob.id),
+          githubWorkflowRunId: String(workflowJob.run_id),
+        },
+        where: {
+          conditions: "id = ?1",
+          params: [id],
+        },
+        returning: "*",
+      })
+      .execute()
+    return results?.[0]
   }
 
   async updateCompletedGitHubWorkflowJob(id: string, workflowJob: WorkflowJob) {
     const status = workflowJob.conclusion === "success" ? "deployed" : "failed"
 
-    return this.db
-      .prepare(
-        "UPDATE apps SET githubWorkflowJobId = ?1, githubWorkflowRunId = ?2, status = ?3 WHERE id = ?4",
-      )
-      .bind(String(workflowJob.id), String(workflowJob.run_id), status, id)
-      .run()
+    const { results } = await this.qb
+      .update<App>({
+        tableName: "apps",
+        data: {
+          githubWorkflowJobId: String(workflowJob.id),
+          githubWorkflowRunId: String(workflowJob.run_id),
+          status,
+        },
+        where: {
+          conditions: "id = ?1",
+          params: [id],
+        },
+        returning: "*",
+      })
+      .execute()
+    return results?.[0]
   }
 }
