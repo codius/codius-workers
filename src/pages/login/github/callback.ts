@@ -2,10 +2,6 @@ import { OAuth2RequestError } from "arctic"
 import type { APIContext } from "astro"
 import { generateIdFromEntropySize } from "lucia"
 
-type UserRow = {
-  id: string
-}
-
 export async function GET(context: APIContext): Promise<Response> {
   const code = context.url.searchParams.get("code")
   const state = context.url.searchParams.get("state")
@@ -27,12 +23,10 @@ export async function GET(context: APIContext): Promise<Response> {
 
     const githubUser: GitHubUser = await githubUserResponse.json()
     console.log({ githubUser })
-    // Replace this with your own DB client.
-    const existingUser = await context.locals.runtime.env.DB.prepare(
-      "SELECT * FROM user WHERE github_id = ?1",
+
+    const existingUser = await context.locals.db.users.getByGitHubId(
+      githubUser.id,
     )
-      .bind(githubUser.id)
-      .first<UserRow>()
 
     if (existingUser) {
       const session = await context.locals.lucia.createSession(
@@ -50,11 +44,11 @@ export async function GET(context: APIContext): Promise<Response> {
 
     const userId = generateIdFromEntropySize(10) // 16 characters long
 
-    await context.locals.runtime.env.DB.prepare(
-      "INSERT INTO user (id, github_id, username) VALUES (?1, ?2, ?3)",
-    )
-      .bind(userId, githubUser.id, githubUser.login)
-      .run()
+    await context.locals.db.users.create({
+      id: userId,
+      githubId: githubUser.id,
+      username: githubUser.login,
+    })
 
     const session = await context.locals.lucia.createSession(userId, {})
     const sessionCookie = context.locals.lucia.createSessionCookie(session.id)

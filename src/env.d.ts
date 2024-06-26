@@ -1,3 +1,5 @@
+import type { DB } from "@/lib/db"
+
 /// <reference path="../.astro/actions.d.ts" />
 /// <reference types="astro/client" />
 type D1Database = import("@cloudflare/workers-types").D1Database
@@ -20,5 +22,6 @@ declare namespace App {
     lucia: import("lucia").Lucia
     session: import("lucia").Session | null
     user: import("lucia").User | null
+    db: DB | null
   }
 }
