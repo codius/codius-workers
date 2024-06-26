@@ -1,6 +1,6 @@
 import { OAuth2RequestError } from "arctic"
 import type { APIContext } from "astro"
-import { generateIdFromEntropySize } from "lucia"
+import { Octokit } from "octokit"
 
 export async function GET(context: APIContext): Promise<Response> {
   const code = context.url.searchParams.get("code")
@@ -14,14 +14,10 @@ export async function GET(context: APIContext): Promise<Response> {
 
   try {
     const tokens = await context.locals.github.validateAuthorizationCode(code)
-    const githubUserResponse = await fetch("https://api.github.com/user", {
-      headers: {
-        Authorization: `Bearer ${tokens.accessToken}`,
-        "User-Agent": import.meta.env.GITHUB_APP_NAME,
-      },
+    const octokit = new Octokit({
+      auth: tokens.accessToken,
     })
-
-    const githubUser: GitHubUser = await githubUserResponse.json()
+    const { data: githubUser } = await octokit.rest.users.getAuthenticated()
     console.log({ githubUser })
 
     const existingUser = await context.locals.db.users.getByGitHubId(
@@ -42,15 +38,9 @@ export async function GET(context: APIContext): Promise<Response> {
       return context.redirect("/")
     }
 
-    const userId = generateIdFromEntropySize(10) // 16 characters long
+    const user = await context.locals.db.users.create(githubUser)
 
-    await context.locals.db.users.create({
-      id: userId,
-      githubId: githubUser.id,
-      username: githubUser.login,
-    })
-
-    const session = await context.locals.lucia.createSession(userId, {})
+    const session = await context.locals.lucia.createSession(user.id, {})
     const sessionCookie = context.locals.lucia.createSessionCookie(session.id)
     context.cookies.set(
       sessionCookie.name,
@@ -72,9 +62,4 @@ export async function GET(context: APIContext): Promise<Response> {
       status: 500,
     })
   }
-}
-
-interface GitHubUser {
-  id: string
-  login: string
 }

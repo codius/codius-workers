@@ -1,25 +1,46 @@
+import { nanoid } from "./utils"
+import type { Endpoints } from "@octokit/types"
+import { D1QB } from "workers-qb"
+
+type GitHubUser = Endpoints["GET /user"]["response"]["data"]
+
 type User = {
   id: string
-  githubId: number
+  github_id: number
   username: string
 }
 
 export class Users {
-  constructor(private db: D1Database) {}
+  private qb: D1QB
+  constructor(d1: D1Database) {
+    this.qb = new D1QB(d1)
+  }
 
-  async create({ id, githubId, username }: User) {
-    return this.db
-      .prepare("INSERT INTO user (id, github_id, username) VALUES (?1, ?2, ?3)")
-      .bind(id, githubId, username)
-      .run()
+  async create(githubUser: GitHubUser) {
+    const { results: user } = await this.qb
+      .insert<User>({
+        tableName: "user",
+        data: {
+          id: nanoid(),
+          github_id: githubUser.id,
+          username: githubUser.login,
+        },
+        returning: "*",
+      })
+      .execute()
+    return user
   }
 
   async getByGitHubId(githubId: number) {
-    return this.db
-      .prepare(
-        "SELECT id, github_id AS githubId, username FROM user WHERE github_id = ?1",
-      )
-      .bind(githubId)
-      .first<User>()
+    const { results } = await this.qb
+      .fetchOne<User>({
+        tableName: "user",
+        where: {
+          conditions: "github_id = ?1",
+          params: [githubId],
+        },
+      })
+      .execute()
+    return results
   }
 }
