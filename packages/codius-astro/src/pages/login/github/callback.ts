@@ -1,6 +1,6 @@
+import { Octokit } from "@octokit/rest"
 import { OAuth2RequestError } from "arctic"
 import type { APIContext } from "astro"
-import { Octokit } from "octokit"
 
 export async function GET(context: APIContext): Promise<Response> {
   const code = context.url.searchParams.get("code")

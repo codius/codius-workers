@@ -1,6 +1,6 @@
 import { getCommit, triggerWorkflow } from "@/lib/github"
+import { RequestError } from "@octokit/request-error"
 import { ActionError, defineAction, z } from "astro:actions"
-import { RequestError } from "octokit"
 
 export const server = {
   deleteApp: defineAction({
