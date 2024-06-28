@@ -13,6 +13,11 @@ type CreateAppOptions = {
 
 type Status = "deployed" | "failed" | "pending"
 
+type DeleteAppOptions = {
+  id: string
+  userId: string
+}
+
 type App = {
   id: string
   userId: string
@@ -60,13 +65,13 @@ export class Apps {
     return app
   }
 
-  async delete(id: string) {
+  async delete({ id, userId }: DeleteAppOptions) {
     const { results } = await this.qb
       .delete<App>({
         tableName: "apps",
         where: {
-          conditions: "id = ?1",
-          params: [id],
+          conditions: ["id = ?1", "userId = ?2"],
+          params: [id, userId],
         },
         returning: "*",
       })

@@ -8,7 +8,21 @@ export const server = {
       id: z.string(),
     }),
     handler: async ({ id }, context) => {
-      const app = await context.locals.db.apps.delete(id)
+      if (!context.locals.user) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+        })
+      }
+      const app = await context.locals.db.apps.delete({
+        id,
+        userId: context.locals.user.id,
+      })
+      if (!app) {
+        throw new ActionError({
+          code: "NOT_FOUND",
+          message: "App not found.",
+        })
+      }
       if (app.status === "deployed") {
         // Workers for Platforms
         // https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}
@@ -47,6 +61,11 @@ export const server = {
     }),
     // https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#access-api-context
     handler: async ({ repoUrl, branch, directory }, context) => {
+      if (!context.locals.user) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+        })
+      }
       try {
         const repoPath = new URL(repoUrl).pathname
         const [owner, repo] = repoPath.substring(1).split("/")
