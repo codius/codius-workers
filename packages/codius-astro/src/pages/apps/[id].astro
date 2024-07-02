@@ -4,14 +4,12 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FiGithub, FiTrash2 } from "react-icons/fi"
 import { Label } from "@/components/ui/label"
-import Logout from "@/components/Logout.astro"
 import Layout from "@/layouts/Layout.astro"
 
 if (!Astro.locals.user) {
@@ -33,7 +31,6 @@ if (!app) {
 
 <Layout title="Welcome to Codius.">
   <main>
-    <Logout />
     <Card>
       <CardHeader>
         <CardTitle>{app.id}</CardTitle>
@@ -121,31 +118,16 @@ if (!app) {
                 >
                   {app.status}
                 </Badge>
-
-                {
-                  app.githubWorkflowRunId && app.githubWorkflowJobId && (
-                    <a
-                      href={`https://github.com/codius/codius-astro/actions/runs/${app.githubWorkflowRunId}/job/${app.githubWorkflowJobId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center"
-                      style="align-items: baseline;"
-                    >
-                      <FiGithub className="mr-2" /> Workflow
-                    </a>
-                  )
-                }
               </div>
             </div>
             <div class="flex flex-col space-y-1.5">
               <Label>Created At</Label>
               <div class="rounded-md border p-3">
-                {new Date(app.createdAt).toString()}
+                {new Date(app.createdAt).toUTCString()}
               </div>
             </div>
           </div>
         </CardContent>
-        <!-- <CardFooter> -->
         {
           app.githubWorkflowRunId && app.githubWorkflowJobId && (
             <div class="mb-4">
@@ -164,10 +146,10 @@ if (!app) {
           <Button
             variant="destructive"
             className="delete-app"
-            data-app-id={app.id}><FiTrash2 className="mr-2" />Delete App</Button
+            data-app-id={app.id}
+            ><FiTrash2 className="icon mr-2" />Delete App</Button
           >
         </div>
-        <!-- </CardFooter> -->
       </CardHeader>
     </Card>
   </main>
@@ -190,8 +172,17 @@ if (!app) {
   const deleteAppButton = document.querySelector("button.delete-app")
   if (deleteAppButton) {
     deleteAppButton.addEventListener("click", async () => {
-      await actions.deleteApp({ id: deleteAppButton.dataset.appId })
-      window.location.href = "/apps"
+      deleteAppButton.disabled = true
+      const icon = deleteAppButton.querySelector(".icon")
+      icon?.classList.add("animate-spin")
+      try {
+        await actions.deleteApp({ id: deleteAppButton.dataset.appId })
+        window.location.href = "/apps"
+      } catch (error) {
+        console.error("Failed to delete app:", error)
+        icon?.classList.remove("animate-spin")
+        deleteAppButton.disabled = false
+      }
     })
   }
 </script>

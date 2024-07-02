@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { FiTrash2 } from "react-icons/fi"
 
 const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
 ---
@@ -21,7 +20,7 @@ const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
       <TableHead>Repo</TableHead>
       <TableHead>URL</TableHead>
       <TableHead>Status</TableHead>
-      <TableHead>Actions</TableHead>
+      <TableHead>Created At</TableHead>
     </TableRow>
   </TableHeader>
   <TableBody>
@@ -36,7 +35,7 @@ const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
     }
     {
       apps.map((app: AppRow) => (
-        <TableRow key={app.id} data-app-id={app.id}>
+        <TableRow key={app.id} data-app-id={app.id} clickable>
           <TableCell>
             <a
               href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
@@ -69,15 +68,7 @@ const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
               {app.status}
             </Badge>
           </TableCell>
-          <TableCell>
-            <button
-              aria-label="Delete app"
-              class="delete-app"
-              data-app-id={app.id}
-            >
-              <FiTrash2 />
-            </button>
-          </TableCell>
+          <TableCell>{new Date(app.createdAt).toUTCString()}</TableCell>
         </TableRow>
       ))
     }
@@ -85,22 +76,10 @@ const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
 </Table>
 
 <script>
-  import { actions } from "astro:actions"
-
   const rows = document.querySelectorAll("tr[data-app-id]")
   rows.forEach((row) => {
     row.addEventListener("click", function () {
       window.location.href = `/apps/${this.dataset.appId}`
-    })
-  })
-
-  const deleteButtons = document.querySelectorAll("button.delete-app")
-
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      const appId = button.dataset.appId
-      await actions.deleteApp({ id: appId })
-      window.location.reload()
     })
   })
 </script>
