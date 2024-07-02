@@ -1,0 +1,197 @@
+---
+import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { FiGithub, FiTrash2 } from "react-icons/fi"
+import { Label } from "@/components/ui/label"
+import Logout from "@/components/Logout.astro"
+import Layout from "@/layouts/Layout.astro"
+
+if (!Astro.locals.user) {
+  return Astro.redirect("/")
+}
+
+const app = await Astro.locals.db.apps.get({
+  id: Astro.params.id,
+  userId: Astro.locals.user.id,
+})
+
+if (!app) {
+  return new Response(null, {
+    status: 404,
+    statusText: "Not found",
+  })
+}
+---
+
+<Layout title="Welcome to Codius.">
+  <main>
+    <Logout />
+    <Card>
+      <CardHeader>
+        <CardTitle>{app.id}</CardTitle>
+        <CardDescription
+          >Deployed by <a
+            href={`https://github.com/${Astro.locals.user.username}`}
+            target="_blank"
+            rel="noopener noreferrer">{Astro.locals.user.username}</a
+          >
+        </CardDescription>
+        <CardContent>
+          <div class="grid w-full items-center gap-4">
+            <div class="flex flex-col space-y-1.5">
+              <Label>URL</Label>
+              <div class="rounded-md border p-3">
+                <a
+                  href={`https://${app.id}.brandon-4fb.workers.dev`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {`https://${app.id}.brandon-4fb.workers.dev`}
+                </a>
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <Label>Repo</Label>
+              <div class="rounded-md border p-3">
+                <a
+                  href={`https://github.com/${app.githubOwner}/${app.repo}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center"
+                  style="align-items: baseline;"
+                >
+                  <FiGithub className="mr-2" />{app.githubOwner}/{app.repo}
+                </a>
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <Label>Branch (at time of deploy)</Label>
+              <div class="rounded-md border p-3">
+                <a
+                  href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.branch}`}
+                  target="_blank"
+                  rel="noopener noreferrer">{app.branch}</a
+                >
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <Label>Commit</Label>
+              <div class="rounded-md border p-3">
+                <a
+                  href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer">{app.commitHash}</a
+                >
+              </div>
+            </div>
+            {
+              app.directory && (
+                <div class="flex flex-col space-y-1.5">
+                  <Label>Directory</Label>
+                  <div class="rounded-md border p-3">
+                    <a
+                      href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {app.directory}
+                    </a>
+                  </div>
+                </div>
+              )
+            }
+            <div class="flex flex-col space-y-1.5">
+              <Label>Status</Label>
+              <div class="rounded-md border p-3">
+                <Badge
+                  className="inline-flex"
+                  variant={app.status === "deployed"
+                    ? "default"
+                    : app.status === "failed"
+                      ? "destructive"
+                      : "secondary"}
+                >
+                  {app.status}
+                </Badge>
+
+                {
+                  app.githubWorkflowRunId && app.githubWorkflowJobId && (
+                    <a
+                      href={`https://github.com/codius/codius-astro/actions/runs/${app.githubWorkflowRunId}/job/${app.githubWorkflowJobId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center"
+                      style="align-items: baseline;"
+                    >
+                      <FiGithub className="mr-2" /> Workflow
+                    </a>
+                  )
+                }
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <Label>Created At</Label>
+              <div class="rounded-md border p-3">
+                {new Date(app.createdAt).toString()}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+        <!-- <CardFooter> -->
+        {
+          app.githubWorkflowRunId && app.githubWorkflowJobId && (
+            <div class="mb-4">
+              <Button
+                className="view-workflow"
+                data-workflow-run-id={app.githubWorkflowRunId}
+                data-workflow-job-id={app.githubWorkflowJobId}
+              >
+                <FiGithub className="mr-2" />
+                View Workflow
+              </Button>
+            </div>
+          )
+        }
+        <div>
+          <Button
+            variant="destructive"
+            className="delete-app"
+            data-app-id={app.id}><FiTrash2 className="mr-2" />Delete App</Button
+          >
+        </div>
+        <!-- </CardFooter> -->
+      </CardHeader>
+    </Card>
+  </main>
+</Layout>
+
+<script>
+  import { actions } from "astro:actions"
+
+  const viewWorkflowButton = document.querySelector("button.view-workflow")
+  if (viewWorkflowButton) {
+    viewWorkflowButton.addEventListener("click", () => {
+      window.open(
+        `https://github.com/codius/codius-astro/actions/runs/${viewWorkflowButton.dataset.workflowRunId}/job/${viewWorkflowButton.dataset.workflowJobId}`,
+        "_blank",
+        "noopener,noreferrer",
+      )
+    })
+  }
+
+  const deleteAppButton = document.querySelector("button.delete-app")
+  if (deleteAppButton) {
+    deleteAppButton.addEventListener("click", async () => {
+      await actions.deleteApp({ id: deleteAppButton.dataset.appId })
+      window.location.href = "/apps"
+    })
+  }
+</script>
