@@ -6,6 +6,7 @@ type D1Database = import("@cloudflare/workers-types").D1Database
 type ENV = {
   CLOUDFLARE_ACCOUNT_ID: string
   CLOUDFLARE_API_TOKEN: string
+  CF_ANALYTICS_API_TOKEN: string
   GITHUB_APP_NAME: string
   GITHUB_CLIENT_ID: string
   GITHUB_CLIENT_SECRET: string

@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { FiGithub, FiTrash2 } from "react-icons/fi"
 import { Label } from "@/components/ui/label"
+import { CostTooltip } from "@/components/CostTooltip"
 import Layout from "@/layouts/Layout.astro"
 
 if (!Astro.locals.user) {
@@ -26,6 +27,137 @@ if (!app) {
     status: 404,
     statusText: "Not found",
   })
+}
+
+// TODO: cache
+// https://developers.cloudflare.com/analytics/graphql-api/limits/#user-limits
+const getWorkerUsage = async () => {
+  const query = `
+  query GetWorkerInvocationSums($accountTag: String, $datetimeStart: String, $datetimeEnd: String, $scriptName: String) {
+    viewer {
+      accounts(filter: {accountTag: $accountTag}) {
+        workersInvocationsAdaptive(limit: 1000, filter: {
+          scriptName: $scriptName,
+          datetime_geq: $datetimeStart,
+          datetime_leq: $datetimeEnd
+        }) {
+          sum {
+            requests
+            cpuTimeUs
+          }
+        }
+      }
+    }
+  }
+  `
+
+  const variables = {
+    accountTag: Astro.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID,
+    scriptName: app.id,
+    // TODO: update schema to:
+    // "createdAt" DATETIME DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+    datetimeStart: new Date(app.createdAt + "Z").toISOString(),
+    datetimeEnd: new Date().toISOString(),
+  }
+
+  try {
+    const response = await fetch(
+      "https://api.cloudflare.com/client/v4/graphql/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Astro.locals.runtime.env.CF_ANALYTICS_API_TOKEN}`,
+        },
+        body: JSON.stringify({ query, variables }),
+      },
+    )
+    const { data } = await response.json()
+
+    return data.viewer.accounts[0].workersInvocationsAdaptive.length
+      ? data.viewer.accounts[0].workersInvocationsAdaptive[0].sum
+      : {
+          requests: 0,
+          cpuTimeUs: 0,
+        }
+  } catch (error) {
+    console.error("Failed to fetch worker usage data:", error)
+    return null
+  }
+}
+
+const workerData = await getWorkerUsage()
+
+const getTotalMonths = (createdAt: Date): number => {
+  const now = new Date()
+  const years = now.getFullYear() - createdAt.getFullYear()
+  const months = now.getMonth() - createdAt.getMonth()
+  const dayDifference = now.getDate() - createdAt.getDate()
+
+  // Calculate initial months based on year and month differences
+  let totalMonths = years * 12 + months
+
+  // Check if the day has been reached or passed in the current month
+  if (dayDifference >= 0) {
+    // Increment month count since it's inclusive and starts at 1
+    totalMonths += 1
+  } else {
+    // If the exact anniversary day hasn't been reached yet this month, start counting from 1
+    totalMonths = Math.max(1, totalMonths)
+  }
+
+  return totalMonths
+}
+
+// 1 USD = 10^11 Nano-cents
+const NANO_CENT_PER_REQUEST = 30_000n
+const NANO_CENT_PER_CPU_US = 2n
+const NANO_CENT_PER_MONTH = 2_000_000_000n
+
+// $0.02 / script / month
+// $0.30 / million requests
+// $0.02 / million CPU seconds
+const calculateWorkerCostInNanoCents = (
+  months: number,
+  requests: bigint,
+  cpuTimeUs: bigint,
+): bigint => {
+  // Calculate total costs
+  const monthlyCost = BigInt(months) * NANO_CENT_PER_MONTH
+  const requestCost = requests * NANO_CENT_PER_REQUEST
+  const cpuCost = cpuTimeUs * NANO_CENT_PER_CPU_US
+
+  // Total cost in nano-cents
+  return monthlyCost + requestCost + cpuCost
+}
+
+const totalCost = calculateWorkerCostInNanoCents(
+  getTotalMonths(new Date(app.createdAt + "Z")),
+  BigInt(workerData.requests),
+  BigInt(workerData.cpuTimeUs),
+)
+
+const costToString = (totalCostInNanoCents: bigint): string => {
+  let costStr = totalCostInNanoCents.toString()
+
+  const neededLength = 12
+  const currentLength = costStr.length
+  if (currentLength < neededLength) {
+    // Pad with zeros to ensure correct decimal placement
+    costStr = "0".repeat(neededLength - currentLength) + costStr
+  }
+
+  const position = costStr.length - 11
+  const dollars = costStr.substring(0, position)
+  const cents = costStr.substring(position)
+
+  // Remove trailing zeros after the decimal point
+  const trimmedCents =
+    cents.replace(/(0+)$/, "").length >= 2
+      ? cents.replace(/(0+)$/, "")
+      : cents.substring(0, 2)
+
+  return `$${dollars}.${trimmedCents}`
 }
 ---
 
@@ -123,7 +255,31 @@ if (!app) {
             <div class="flex flex-col space-y-1.5">
               <Label>Created At</Label>
               <div class="rounded-md border p-3">
-                {new Date(app.createdAt).toUTCString()}
+                {new Date(app.createdAt + "Z").toUTCString()}
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <Label>Requests</Label>
+              <div class="rounded-md border p-3">
+                {workerData.requests}
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <Label>Total CPU Time</Label>
+              <div class="rounded-md border p-3">
+                {workerData.cpuTimeUs ? workerData.cpuTimeUs / 1000 : 0}
+                ms
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <div class="flex items-center space-x-2">
+                <Label>Total Cost</Label>
+                <div class="ml-4">
+                  <CostTooltip client:only="react" />
+                </div>
+              </div>
+              <div class="rounded-md border p-3">
+                {costToString(totalCost)}
               </div>
             </div>
           </div>
