@@ -4,10 +4,10 @@ import { ModeToggle } from "@/components/ModeToggle"
 import Logout from "@/components/Logout.astro"
 
 interface Props {
-  title: string
+  title?: string
 }
 
-const { title } = Astro.props
+const { title = "Welcome to Codius" } = Astro.props
 ---
 
 <script is:inline>

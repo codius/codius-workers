@@ -1,6 +1,7 @@
 import { getCommit, triggerWorkflow } from "@/lib/github"
 import { RequestError } from "@octokit/request-error"
 import { ActionError, defineAction, z } from "astro:actions"
+import Stripe from "stripe"
 
 export const server = {
   deleteApp: defineAction({
@@ -111,6 +112,39 @@ export const server = {
           message: "Unexpected issue saving the app.",
         })
       }
+    },
+  }),
+  createCheckoutSession: defineAction({
+    input: z.object({
+      appId: z.string(),
+    }),
+    handler: async ({ appId }, context) => {
+      if (!context.locals.user) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+        })
+      }
+
+      const stripe = new Stripe(context.locals.runtime.env.STRIPE_SECRET_KEY)
+      const { origin } = new URL(context.request.url)
+      const session = await stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price: context.locals.runtime.env.STRIPE_TOPUP_PRICE_ID,
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        metadata: {
+          // TODO: encrypt
+          appId,
+          userId: context.locals.user.id,
+        },
+        success_url: `${origin}/checkout-sessions/{CHECKOUT_SESSION_ID}/success`,
+        cancel_url: `${origin}?canceled=true`,
+      })
+
+      return session.url
     },
   }),
 }

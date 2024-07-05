@@ -12,6 +12,8 @@ type ENV = {
   GITHUB_CLIENT_SECRET: string
   GITHUB_ACCESS_TOKEN: string
   GITHUB_WEBHOOK_SECRET: string
+  STRIPE_TOPUP_PRICE_ID: string
+  STRIPE_SECRET_KEY: string
   DB: D1Database
 }
 

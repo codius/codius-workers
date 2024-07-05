@@ -1,0 +1,52 @@
+---
+import Layout from "@/layouts/Layout.astro"
+import Stripe from "stripe"
+import { centsToString } from "@/lib/utils"
+
+const sessionId = Astro.params.id
+if (!sessionId) {
+  return new Response("Missing sessionId", { status: 400 })
+}
+
+const stripe = new Stripe(Astro.locals.runtime.env.STRIPE_SECRET_KEY)
+
+const session = await stripe.checkout.sessions.retrieve(sessionId)
+console.log(session)
+
+if (session.payment_status !== "paid" || session.status !== "complete") {
+  return new Response("Payment not completed", { status: 400 })
+}
+
+// TODO:
+// https://docs.stripe.com/api/checkout/sessions/object#checkout_session_object-currency_conversion
+if (session.currency !== "usd") {
+  return new Response("Invalid currency", { status: 400 })
+}
+
+if (!session.metadata?.appId || !session.metadata?.userId) {
+  return new Response("Invalid sessionId", { status: 400 })
+}
+
+const { appId, userId } = session.metadata
+
+if (Astro.locals.user && userId !== Astro.locals.user.id) {
+  return new Response("Forbidden", { status: 403 })
+}
+
+await Astro.locals.db.payments.create({
+  appId,
+  userId,
+  stripeCheckoutSessionId: sessionId,
+  amount: session.amount_total,
+})
+---
+
+<Layout>
+  <main>
+    <p>
+      Added {centsToString(session.amount_total)} to <a href=`/apps/${appId}`
+        >{appId}</a
+      >
+    </p>
+  </main>
+</Layout>

@@ -1,6 +1,6 @@
 import { nanoid } from "./utils"
 import type { WorkflowJob } from "@octokit/webhooks-types"
-import { D1QB } from "workers-qb"
+import { D1QB, JoinTypes } from "workers-qb"
 
 type CreateAppOptions = {
   userId: string
@@ -31,6 +31,10 @@ type App = {
   githubWorkflowRunId: string | null
   createdAt: string
   updatedAt: string
+}
+
+type AppWithTotalFunding = App & {
+  totalFunding: number
 }
 
 export class Apps {
@@ -100,6 +104,26 @@ export class Apps {
           conditions: ["id = ?1", "userId = ?2"],
           params: [id, userId],
         },
+      })
+      .execute()
+    return results
+  }
+
+  async getWithTotalFunding({ id, userId }: AppOptions) {
+    const { results } = await this.qb
+      .fetchOne<AppWithTotalFunding>({
+        tableName: "apps",
+        fields: ["apps.*", "COALESCE(SUM(payments.amount), 0) AS totalFunding"],
+        join: {
+          type: JoinTypes.LEFT,
+          table: "payments",
+          on: "payments.appId = apps.id",
+        },
+        where: {
+          conditions: ["apps.id = ?1", "apps.userId = ?2"],
+          params: [id, userId],
+        },
+        groupBy: "apps.id",
       })
       .execute()
     return results

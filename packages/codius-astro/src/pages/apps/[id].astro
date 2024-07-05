@@ -8,16 +8,17 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FiGithub, FiTrash2 } from "react-icons/fi"
+import { FiDollarSign, FiGithub, FiTrash2 } from "react-icons/fi"
 import { Label } from "@/components/ui/label"
 import { CostTooltip } from "@/components/CostTooltip"
 import Layout from "@/layouts/Layout.astro"
+import { centsToNanocents, centsToString, nanocentsToString } from "@/lib/utils"
 
 if (!Astro.locals.user) {
   return Astro.redirect("/")
 }
 
-const app = await Astro.locals.db.apps.get({
+const app = await Astro.locals.db.apps.getWithTotalFunding({
   id: Astro.params.id,
   userId: Astro.locals.user.id,
 })
@@ -136,29 +137,6 @@ const totalCost = calculateWorkerCostInNanoCents(
   BigInt(workerData.requests),
   BigInt(workerData.cpuTimeUs),
 )
-
-const costToString = (totalCostInNanoCents: bigint): string => {
-  let costStr = totalCostInNanoCents.toString()
-
-  const neededLength = 12
-  const currentLength = costStr.length
-  if (currentLength < neededLength) {
-    // Pad with zeros to ensure correct decimal placement
-    costStr = "0".repeat(neededLength - currentLength) + costStr
-  }
-
-  const position = costStr.length - 11
-  const dollars = costStr.substring(0, position)
-  const cents = costStr.substring(position)
-
-  // Remove trailing zeros after the decimal point
-  const trimmedCents =
-    cents.replace(/(0+)$/, "").length >= 2
-      ? cents.replace(/(0+)$/, "")
-      : cents.substring(0, 2)
-
-  return `$${dollars}.${trimmedCents}`
-}
 ---
 
 <Layout title="Welcome to Codius.">
@@ -279,11 +257,34 @@ const costToString = (totalCostInNanoCents: bigint): string => {
                 </div>
               </div>
               <div class="rounded-md border p-3">
-                {costToString(totalCost)}
+                {nanocentsToString(totalCost)}
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <Label>Total Funding</Label>
+              <div class="rounded-md border p-3">
+                {centsToString(app.totalFunding)}
+              </div>
+            </div>
+            <div class="flex flex-col space-y-1.5">
+              <Label>Balance</Label>
+              <div class="rounded-md border p-3">
+                {
+                  nanocentsToString(
+                    centsToNanocents(app.totalFunding) - totalCost,
+                  )
+                }
               </div>
             </div>
           </div>
         </CardContent>
+
+        <div class="mb-4">
+          <Button className="top-up-balance" data-app-id={app.id}>
+            <FiDollarSign className="icon mr-2" />
+            Top Up Balance
+          </Button>
+        </div>
         {
           app.githubWorkflowRunId && app.githubWorkflowJobId && (
             <div class="mb-4">
@@ -313,6 +314,22 @@ const costToString = (totalCostInNanoCents: bigint): string => {
 
 <script>
   import { actions } from "astro:actions"
+
+  const topUpBalanceButton = document.querySelector("button.top-up-balance")
+  if (topUpBalanceButton) {
+    topUpBalanceButton.addEventListener("click", async () => {
+      topUpBalanceButton.disabled = true
+      try {
+        const sessionUrl = await actions.createCheckoutSession({
+          appId: topUpBalanceButton.dataset.appId,
+        })
+        window.location.href = sessionUrl
+      } catch (error) {
+        console.error("Failed to create checkout session:", error)
+        topUpBalanceButton.disabled = false
+      }
+    })
+  }
 
   const viewWorkflowButton = document.querySelector("button.view-workflow")
   if (viewWorkflowButton) {
