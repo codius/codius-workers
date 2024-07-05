@@ -19,7 +19,12 @@ export const centsToNanocents = (amount: number): bigint =>
   BigInt(amount) * 1_000_000_000n
 
 export const nanocentsToString = (amount: bigint): string => {
+  const isNegative = amount < 0n
   let nanocentsStr = amount.toString()
+
+  if (isNegative) {
+    nanocentsStr = nanocentsStr.substring(1)
+  }
 
   const neededLength = 12
   const currentLength = nanocentsStr.length
@@ -33,10 +38,7 @@ export const nanocentsToString = (amount: bigint): string => {
   const cents = nanocentsStr.substring(position)
 
   // Remove trailing zeros after the decimal point
-  const trimmedCents =
-    cents.replace(/(0+)$/, "").length >= 2
-      ? cents.replace(/(0+)$/, "")
-      : cents.substring(0, 2)
+  const trimmedCents = cents.length > 2 ? cents.replace(/0+$/, "") : cents
 
-  return `$${dollars}.${trimmedCents}`
+  return `${isNegative ? "-" : ""}$${dollars}.${trimmedCents.padEnd(2, "0")}`
 }
