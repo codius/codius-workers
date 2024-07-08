@@ -1,5 +1,7 @@
-import { nanoid } from "./utils"
-import { D1QB, JoinTypes } from "workers-qb"
+import { payments } from "../schema"
+import * as schema from "../schema"
+import { eq, and, sql, getTableColumns } from "drizzle-orm"
+import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
 type CreatePaymentOptions = {
   appId: string
@@ -13,61 +15,26 @@ type PaymentOptions = {
   userId: string
 }
 
-type Payment = {
-  id: string
-  appId: string
-  userId: string
-  amount: number
-  stripeCheckoutSessionId: string
-  createdAt: string
-  updatedAt: string
-}
-
-const tableName = "payments"
-
 export class Payments {
-  private qb: D1QB
+  private db: DrizzleD1Database<typeof schema>
   constructor(d1: D1Database) {
-    this.qb = new D1QB(d1)
+    this.db = drizzle(d1, { schema })
   }
 
   async create(options: CreatePaymentOptions) {
-    const { results: app } = await this.qb
-      .insert<App>({
-        tableName,
-        data: {
-          id: nanoid(),
-          ...options,
-        },
-        returning: "*",
-      })
-      .execute()
-    return app
+    const [payment] = await this.db.insert(payments).values(options).returning()
+    return payment
   }
 
   async getByUserId(userId: string) {
-    const { results } = await this.qb
-      .fetchAll<Payment>({
-        tableName,
-        where: {
-          conditions: "userId = ?1",
-          params: [userId],
-        },
-      })
-      .execute()
-    return results
+    return this.db.query.payments.findMany({
+      where: eq(payments.userId, userId),
+    })
   }
 
   async get({ id, userId }: PaymentOptions) {
-    const { results } = await this.qb
-      .fetchOne<Payment>({
-        tableName,
-        where: {
-          conditions: ["id = ?1", "userId = ?2"],
-          params: [id, userId],
-        },
-      })
-      .execute()
-    return results
+    return this.db.query.payments.findFirst({
+      where: and(eq(payments.id, id), eq(payments.userId, userId)),
+    })
   }
 }

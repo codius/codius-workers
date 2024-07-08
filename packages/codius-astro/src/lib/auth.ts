@@ -4,8 +4,8 @@ import { Lucia } from "lucia"
 
 export function initializeLucia(D1: D1Database) {
   const adapter = new D1Adapter(D1, {
-    user: "user",
-    session: "session",
+    user: "users",
+    session: "sessions",
   })
   return new Lucia(adapter, {
     sessionCookie: {

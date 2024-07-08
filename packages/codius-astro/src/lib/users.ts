@@ -1,48 +1,31 @@
-import { nanoid } from "./utils"
+import { users } from "../schema"
+import * as schema from "../schema"
 import type { Endpoints } from "@octokit/types"
-import { D1QB } from "workers-qb"
+import { eq } from "drizzle-orm"
+import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
 type GitHubUser = Endpoints["GET /user"]["response"]["data"]
 
-type User = {
-  id: string
-  github_id: number
-  username: string
-}
-
-const tableName = "user"
-
 export class Users {
-  private qb: D1QB
+  private db: DrizzleD1Database<typeof schema>
   constructor(d1: D1Database) {
-    this.qb = new D1QB(d1)
+    this.db = drizzle(d1, { schema })
   }
 
   async create(githubUser: GitHubUser) {
-    const { results: user } = await this.qb
-      .insert<User>({
-        tableName,
-        data: {
-          id: nanoid(),
-          github_id: githubUser.id,
-          username: githubUser.login,
-        },
-        returning: "*",
+    const [user] = await this.db
+      .insert(users)
+      .values({
+        githubId: githubUser.id,
+        username: githubUser.login,
       })
-      .execute()
+      .returning()
     return user
   }
 
   async getByGitHubId(githubId: number) {
-    const { results } = await this.qb
-      .fetchOne<User>({
-        tableName,
-        where: {
-          conditions: "github_id = ?1",
-          params: [githubId],
-        },
-      })
-      .execute()
-    return results
+    return this.db.query.users.findFirst({
+      where: eq(users.githubId, githubId),
+    })
   }
 }

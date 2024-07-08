@@ -16,8 +16,9 @@
 ### Setup Cloudflare D1 Database
 
 ```bash
-pnpm dlx wrangler d1 create <your-d1-db-name>
-pnpm dlx wrangler d1 migrations apply <your-d1-db-name> --local
+pnpm --filter codius-astro drizzle-kit generate
+pnpm --filter codius-astro d1 create <your-d1-db-name>
+pnpm --filter codius-astro d1 migrations apply <your-d1-db-name> --local
 ```
 
 > **Note:** Rollback local migrations by deleting the state files with the following command:

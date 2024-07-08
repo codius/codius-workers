@@ -55,9 +55,7 @@ const getWorkerUsage = async () => {
   const variables = {
     accountTag: Astro.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID,
     scriptName: app.id,
-    // TODO: update schema to:
-    // "createdAt" DATETIME DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
-    datetimeStart: new Date(app.createdAt + "Z").toISOString(),
+    datetimeStart: app.createdAt.toISOString(),
     datetimeEnd: new Date().toISOString(),
   }
 
@@ -110,6 +108,7 @@ const getTotalMonths = (createdAt: Date): number => {
   return totalMonths
 }
 
+// TODO: configure via environment variables
 // 1 USD = 10^11 Nano-cents
 const NANO_CENT_PER_REQUEST = 30_000n
 const NANO_CENT_PER_CPU_US = 2n

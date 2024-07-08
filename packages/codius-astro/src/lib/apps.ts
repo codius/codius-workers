@@ -1,7 +1,10 @@
-import { nanoid } from "./utils"
+import { apps, payments } from "../schema"
+import * as schema from "../schema"
 import type { WorkflowJob } from "@octokit/webhooks-types"
-import { D1QB, JoinTypes } from "workers-qb"
+import { eq, and, sql, getTableColumns } from "drizzle-orm"
+import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
+// type NewApp = typeof apps.$inferInsert
 type CreateAppOptions = {
   userId: string
   githubOwner: string
@@ -11,162 +14,81 @@ type CreateAppOptions = {
   directory?: string
 }
 
-type Status = "deployed" | "failed" | "pending"
-
 type AppOptions = {
   id: string
   userId: string
 }
 
-type App = {
-  id: string
-  userId: string
-  githubOwner: string
-  repo: string
-  branch: string
-  commitHash: string
-  directory: string
-  status: Status
-  githubWorkflowJobId: string | null
-  githubWorkflowRunId: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-type AppWithTotalFunding = App & {
-  totalFunding: number
-}
-
-const tableName = "apps"
-
 export class Apps {
-  private qb: D1QB
+  private db: DrizzleD1Database<typeof schema>
   constructor(d1: D1Database) {
-    this.qb = new D1QB(d1)
+    this.db = drizzle(d1, { schema })
   }
 
-  async create({
-    userId,
-    githubOwner,
-    repo,
-    branch,
-    commitHash,
-    directory,
-  }: CreateAppOptions) {
-    const { results: app } = await this.qb
-      .insert<App>({
-        tableName,
-        data: {
-          id: nanoid(),
-          userId,
-          githubOwner,
-          repo,
-          branch,
-          commitHash,
-          directory: directory || "",
-        },
-        returning: "*",
-      })
-      .execute()
+  async create(appOpts: CreateAppOptions) {
+    const [app] = await this.db.insert(apps).values(appOpts).returning()
     return app
   }
 
   async delete({ id, userId }: AppOptions) {
-    const { results } = await this.qb
-      .delete<App>({
-        tableName,
-        where: {
-          conditions: ["id = ?1", "userId = ?2"],
-          params: [id, userId],
-        },
-        returning: "*",
-      })
-      .execute()
-    return results?.[0]
+    const [app] = await this.db
+      .delete(apps)
+      .where(and(eq(apps.id, id), eq(apps.userId, userId)))
+      .returning()
+
+    return app
   }
 
   async getByUserId(userId: string) {
-    const { results } = await this.qb
-      .fetchAll<App>({
-        tableName,
-        where: {
-          conditions: "userId = ?1",
-          params: [userId],
-        },
-      })
-      .execute()
-    return results
+    return this.db.query.apps.findMany({
+      where: eq(apps.userId, userId),
+    })
   }
 
   async get({ id, userId }: AppOptions) {
-    const { results } = await this.qb
-      .fetchOne<App>({
-        tableName,
-        where: {
-          conditions: ["id = ?1", "userId = ?2"],
-          params: [id, userId],
-        },
-      })
-      .execute()
-    return results
+    return this.db.query.apps.findFirst({
+      where: and(eq(apps.id, id), eq(apps.userId, userId)),
+    })
   }
 
   async getWithTotalFunding({ id, userId }: AppOptions) {
-    const { results } = await this.qb
-      .fetchOne<AppWithTotalFunding>({
-        tableName,
-        fields: ["apps.*", "COALESCE(SUM(payments.amount), 0) AS totalFunding"],
-        join: {
-          type: JoinTypes.LEFT,
-          table: "payments",
-          on: "payments.appId = apps.id",
-        },
-        where: {
-          conditions: ["apps.id = ?1", "apps.userId = ?2"],
-          params: [id, userId],
-        },
-        groupBy: "apps.id",
+    const columns = getTableColumns(apps)
+    const [app] = await this.db
+      .select({
+        ...columns,
+        totalFunding: sql<number>`COALESCE(SUM(payments.amount), 0)`,
       })
-      .execute()
-    return results
+      .from(apps)
+      .where(and(eq(apps.id, id), eq(apps.userId, userId)))
+      .leftJoin(payments, eq(apps.id, payments.appId))
+      .groupBy(apps.id)
+    return app
   }
 
   async updateGitHubWorkflowJob(id: string, workflowJob: WorkflowJob) {
-    const { results } = await this.qb
-      .update<App>({
-        tableName,
-        data: {
-          githubWorkflowJobId: String(workflowJob.id),
-          githubWorkflowRunId: String(workflowJob.run_id),
-        },
-        where: {
-          conditions: "id = ?1",
-          params: [id],
-        },
-        returning: "*",
+    const [app] = await this.db
+      .update(apps)
+      .set({
+        githubWorkflowJobId: String(workflowJob.id),
+        githubWorkflowRunId: String(workflowJob.run_id),
       })
-      .execute()
-    return results?.[0]
+      .where(eq(apps.id, id))
+      .returning()
+    return app
   }
 
   async updateCompletedGitHubWorkflowJob(id: string, workflowJob: WorkflowJob) {
     const status = workflowJob.conclusion === "success" ? "deployed" : "failed"
 
-    const { results } = await this.qb
-      .update<App>({
-        tableName,
-        data: {
-          githubWorkflowJobId: String(workflowJob.id),
-          githubWorkflowRunId: String(workflowJob.run_id),
-          status,
-        },
-        where: {
-          conditions: "id = ?1",
-          params: [id],
-        },
-        returning: "*",
+    const [app] = await this.db
+      .update(apps)
+      .set({
+        githubWorkflowJobId: String(workflowJob.id),
+        githubWorkflowRunId: String(workflowJob.run_id),
+        status,
       })
-      .execute()
-    return results?.[0]
+      .where(eq(apps.id, id))
+      .returning()
+    return app
   }
 }
