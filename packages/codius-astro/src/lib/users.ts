@@ -10,6 +10,8 @@ type User = {
   username: string
 }
 
+const tableName = "user"
+
 export class Users {
   private qb: D1QB
   constructor(d1: D1Database) {
@@ -19,7 +21,7 @@ export class Users {
   async create(githubUser: GitHubUser) {
     const { results: user } = await this.qb
       .insert<User>({
-        tableName: "user",
+        tableName,
         data: {
           id: nanoid(),
           github_id: githubUser.id,
@@ -34,7 +36,7 @@ export class Users {
   async getByGitHubId(githubId: number) {
     const { results } = await this.qb
       .fetchOne<User>({
-        tableName: "user",
+        tableName,
         where: {
           conditions: "github_id = ?1",
           params: [githubId],

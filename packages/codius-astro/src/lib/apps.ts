@@ -37,6 +37,8 @@ type AppWithTotalFunding = App & {
   totalFunding: number
 }
 
+const tableName = "apps"
+
 export class Apps {
   private qb: D1QB
   constructor(d1: D1Database) {
@@ -53,7 +55,7 @@ export class Apps {
   }: CreateAppOptions) {
     const { results: app } = await this.qb
       .insert<App>({
-        tableName: "apps",
+        tableName,
         data: {
           id: nanoid(),
           userId,
@@ -72,7 +74,7 @@ export class Apps {
   async delete({ id, userId }: AppOptions) {
     const { results } = await this.qb
       .delete<App>({
-        tableName: "apps",
+        tableName,
         where: {
           conditions: ["id = ?1", "userId = ?2"],
           params: [id, userId],
@@ -86,7 +88,7 @@ export class Apps {
   async getByUserId(userId: string) {
     const { results } = await this.qb
       .fetchAll<App>({
-        tableName: "apps",
+        tableName,
         where: {
           conditions: "userId = ?1",
           params: [userId],
@@ -99,7 +101,7 @@ export class Apps {
   async get({ id, userId }: AppOptions) {
     const { results } = await this.qb
       .fetchOne<App>({
-        tableName: "apps",
+        tableName,
         where: {
           conditions: ["id = ?1", "userId = ?2"],
           params: [id, userId],
@@ -112,7 +114,7 @@ export class Apps {
   async getWithTotalFunding({ id, userId }: AppOptions) {
     const { results } = await this.qb
       .fetchOne<AppWithTotalFunding>({
-        tableName: "apps",
+        tableName,
         fields: ["apps.*", "COALESCE(SUM(payments.amount), 0) AS totalFunding"],
         join: {
           type: JoinTypes.LEFT,
@@ -132,7 +134,7 @@ export class Apps {
   async updateGitHubWorkflowJob(id: string, workflowJob: WorkflowJob) {
     const { results } = await this.qb
       .update<App>({
-        tableName: "apps",
+        tableName,
         data: {
           githubWorkflowJobId: String(workflowJob.id),
           githubWorkflowRunId: String(workflowJob.run_id),
@@ -152,7 +154,7 @@ export class Apps {
 
     const { results } = await this.qb
       .update<App>({
-        tableName: "apps",
+        tableName,
         data: {
           githubWorkflowJobId: String(workflowJob.id),
           githubWorkflowRunId: String(workflowJob.run_id),
