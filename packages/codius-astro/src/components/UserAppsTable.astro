@@ -34,7 +34,7 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
     }
     {
       apps.map((app) => (
-        <TableRow is="app-row" key={app.id} data-app-id={app.id} clickable>
+        <TableRow key={app.id} data-app-id={app.id} clickable>
           <TableCell>
             <a
               href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
@@ -75,13 +75,10 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
 </Table>
 
 <script>
-  class AppRow extends HTMLElement {
-    constructor() {
-      super()
-      this.addEventListener("click", () => {
-        window.location.href = `/apps/${this.dataset.appId}`
-      })
-    }
-  }
-  customElements.define("app-row", AppRow)
+  const rows = document.querySelectorAll<HTMLTableRowElement>("tr[data-app-id]")
+  rows.forEach((row) => {
+    row.addEventListener("click", function () {
+      window.location.href = `/apps/${this.dataset.appId}`
+    })
+  })
 </script>

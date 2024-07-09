@@ -283,7 +283,7 @@ const totalCost = calculateWorkerCostInNanoCents(
         </CardContent>
 
         <div class="mb-4">
-          <Button is="top-up-balance-button" data-app-id={app.id}>
+          <Button className="top-up-balance" data-app-id={app.id}>
             <FiDollarSign className="icon mr-2" />
             Top Up Balance
           </Button>
@@ -292,7 +292,7 @@ const totalCost = calculateWorkerCostInNanoCents(
           app.githubWorkflowRunId && app.githubWorkflowJobId && (
             <div class="mb-4">
               <Button
-                is="view-workflow-button"
+                className="view-workflow"
                 data-workflow-run-id={app.githubWorkflowRunId}
                 data-workflow-job-id={app.githubWorkflowJobId}
               >
@@ -305,7 +305,7 @@ const totalCost = calculateWorkerCostInNanoCents(
         <div>
           <Button
             variant="destructive"
-            is="delete-app-button"
+            className="delete-app"
             data-app-id={app.id}
             ><FiTrash2 className="icon mr-2" />Delete App</Button
           >
@@ -318,68 +318,60 @@ const totalCost = calculateWorkerCostInNanoCents(
 <script>
   import { actions } from "astro:actions"
 
-  class TopUpBalanceButton extends HTMLButtonElement {
-    constructor() {
-      super()
-      this.addEventListener("click", async () => {
-        if (!this.dataset.appId) {
-          console.error("Missing appId")
-          return
-        }
-        this.disabled = true
-        try {
-          const sessionUrl = await actions.createCheckoutSession({
-            appId: this.dataset.appId,
-          })
-          window.location.href = sessionUrl
-        } catch (error) {
-          console.error("Failed to create checkout session:", error)
-          this.disabled = false
-        }
-      })
-    }
+  const topUpBalanceButton = document.querySelector<HTMLButtonElement>(
+    "button.top-up-balance",
+  )
+  if (topUpBalanceButton) {
+    topUpBalanceButton.addEventListener("click", async () => {
+      if (!topUpBalanceButton.dataset.appId) {
+        console.error("Missing appId")
+        return
+      }
+      topUpBalanceButton.disabled = true
+      try {
+        const sessionUrl = await actions.createCheckoutSession({
+          appId: topUpBalanceButton.dataset.appId,
+        })
+        window.location.href = sessionUrl
+      } catch (error) {
+        console.error("Failed to create checkout session:", error)
+        topUpBalanceButton.disabled = false
+      }
+    })
   }
-  customElements.define("top-up-balance-button", TopUpBalanceButton)
 
-  class ViewWorkflowButton extends HTMLButtonElement {
-    constructor() {
-      super()
-      this.addEventListener("click", async () => {
-        if (!this.dataset.workflowRunId || !this.dataset.workflowJobId) {
-          console.error("Missing workflowRunId or workflowJobId")
-          return
-        }
-        window.open(
-          `https://github.com/codius/codius-astro/actions/runs/${this.dataset.workflowRunId}/job/${this.dataset.workflowJobId}`,
-          "_blank",
-          "noopener,noreferrer",
-        )
-      })
-    }
+  const viewWorkflowButton = document.querySelector<HTMLButtonElement>(
+    "button.view-workflow",
+  )
+  if (viewWorkflowButton) {
+    viewWorkflowButton.addEventListener("click", () => {
+      window.open(
+        `https://github.com/codius/codius-astro/actions/runs/${viewWorkflowButton.dataset.workflowRunId}/job/${viewWorkflowButton.dataset.workflowJobId}`,
+        "_blank",
+        "noopener,noreferrer",
+      )
+    })
   }
-  customElements.define("view-workflow-button", ViewWorkflowButton)
 
-  class DeleteAppButton extends HTMLButtonElement {
-    constructor() {
-      super()
-      this.addEventListener("click", async () => {
-        if (!this.dataset.appId) {
-          console.error("Missing appId")
-          return
-        }
-        this.disabled = true
-        const icon = this.querySelector(".icon")
-        icon?.classList.add("animate-spin")
-        try {
-          await actions.deleteApp({ id: this.dataset.appId })
-          window.location.href = "/apps"
-        } catch (error) {
-          console.error("Failed to delete app:", error)
-          icon?.classList.remove("animate-spin")
-          this.disabled = false
-        }
-      })
-    }
+  const deleteAppButton =
+    document.querySelector<HTMLButtonElement>("button.delete-app")
+  if (deleteAppButton) {
+    deleteAppButton.addEventListener("click", async () => {
+      if (!deleteAppButton.dataset.appId) {
+        console.error("Missing appId")
+        return
+      }
+      deleteAppButton.disabled = true
+      const icon = deleteAppButton.querySelector(".icon")
+      icon?.classList.add("animate-spin")
+      try {
+        await actions.deleteApp({ id: deleteAppButton.dataset.appId })
+        window.location.href = "/apps"
+      } catch (error) {
+        console.error("Failed to delete app:", error)
+        icon?.classList.remove("animate-spin")
+        deleteAppButton.disabled = false
+      }
+    })
   }
-  customElements.define("delete-app-button", DeleteAppButton)
 </script>
