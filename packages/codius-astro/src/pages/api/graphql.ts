@@ -2,7 +2,10 @@ import type { APIContext } from "astro"
 
 export async function POST(context: APIContext): Promise<Response> {
   // TODO: admin users
-  if (!["justmoon", "wilsonianb"].includes(context.locals.user.username)) {
+  if (
+    !context.locals.user ||
+    !["justmoon", "wilsonianb"].includes(context.locals.user.username)
+  ) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: {

@@ -95,16 +95,18 @@ export const server = {
       } catch (e) {
         console.error(e)
 
-        if (e.message.includes("UNIQUE constraint failed")) {
-          throw new ActionError({
-            code: "CONFLICT",
-            message: "An app with these details already exists.",
-          })
-        } else if (e instanceof RequestError) {
-          throw new ActionError({
-            code: "BAD_REQUEST",
-            message: "Invalid repo URL.",
-          })
+        if (e instanceof Error) {
+          if (e.message.includes("UNIQUE constraint failed")) {
+            throw new ActionError({
+              code: "CONFLICT",
+              message: "An app with these details already exists.",
+            })
+          } else if (e instanceof RequestError) {
+            throw new ActionError({
+              code: "BAD_REQUEST",
+              message: "Invalid repo URL.",
+            })
+          }
         }
 
         throw new ActionError({
@@ -144,7 +146,14 @@ export const server = {
         cancel_url: `${origin}?canceled=true`,
       })
 
-      return session.url
+      if (!session.url) {
+        throw new ActionError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create checkout session.",
+        })
+      } else {
+        return session.url
+      }
     },
   }),
 }

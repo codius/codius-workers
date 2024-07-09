@@ -1,5 +1,3 @@
-import type { DB } from "@/lib/db"
-
 /// <reference path="../.astro/actions.d.ts" />
 /// <reference types="astro/client" />
 type D1Database = import("@cloudflare/workers-types").D1Database
@@ -19,12 +17,13 @@ type ENV = {
 
 type Runtime = import("@astrojs/cloudflare").Runtime<ENV>
 
+// https://github.com/withastro/astro/issues/7394#issuecomment-1975657601
 declare namespace App {
   interface Locals extends Runtime {
     github: import("arctic").GitHub
     lucia: import("lucia").Lucia
     session: import("lucia").Session | null
     user: import("lucia").User | null
-    db: DB | null
+    db: import("@/lib/db").DB
   }
 }

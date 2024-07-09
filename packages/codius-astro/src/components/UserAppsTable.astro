@@ -10,7 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
+const { user } = Astro.props
+const apps = await Astro.locals.db.apps.getByUserId(user.id)
 ---
 
 <Table>
@@ -27,15 +28,13 @@ const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
     {
       apps.length === 0 && (
         <TableRow>
-          <TableCell colSpan="4" class="text-center">
-            No apps found
-          </TableCell>
+          <TableCell className="text-center">No apps found</TableCell>
         </TableRow>
       )
     }
     {
-      apps.map((app: AppRow) => (
-        <TableRow key={app.id} data-app-id={app.id} clickable>
+      apps.map((app) => (
+        <TableRow is="app-row" key={app.id} data-app-id={app.id} clickable>
           <TableCell>
             <a
               href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
@@ -76,10 +75,13 @@ const apps = await Astro.locals.db.apps.getByUserId(Astro.locals.user.id)
 </Table>
 
 <script>
-  const rows = document.querySelectorAll("tr[data-app-id]")
-  rows.forEach((row) => {
-    row.addEventListener("click", function () {
-      window.location.href = `/apps/${this.dataset.appId}`
-    })
-  })
+  class AppRow extends HTMLElement {
+    constructor() {
+      super()
+      this.addEventListener("click", () => {
+        window.location.href = `/apps/${this.dataset.appId}`
+      })
+    }
+  }
+  customElements.define("app-row", AppRow)
 </script>

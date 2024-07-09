@@ -1,7 +1,8 @@
 import { initializeLucia, initializeGitHub } from "@/lib/auth"
 import { DB } from "@/lib/db"
 import { defineMiddleware } from "astro:middleware"
-import { verifyRequestOrigin } from "lucia"
+
+// import { verifyRequestOrigin } from "lucia"
 
 export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.db = new DB(context.locals.runtime.env.DB)

@@ -8,23 +8,26 @@ import {
   getActionProps,
   isInputError,
   ActionError,
+  ActionInputError,
 } from "astro:actions"
 import { useState } from "react"
+
+type FieldErrors = ActionInputError<{
+  branch: string
+  repoUrl: string
+  directory?: string | undefined
+}>["fields"]
 
 export function AppForm() {
   // TODO: useActionState
   const [error, setError] = useState<ActionError | null>(null)
 
-  const [fieldErrors, setFieldErrors] = useState({
-    repoUrl: null,
-    branch: null,
-    directory: null,
-  })
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    const { data, error } = await actions.deployApp.safe(formData)
+    const { error } = await actions.deployApp.safe(formData)
     if (error) {
       if (isInputError(error)) {
         setFieldErrors(error.fields)
@@ -41,7 +44,7 @@ export function AppForm() {
     <form method="POST" onSubmit={onSubmit}>
       <Input {...getActionProps(actions.deployApp)} />
       <Label
-        className={fieldErrors.repoUrl && "text-destructive"}
+        className={fieldErrors.repoUrl ? "text-destructive" : undefined}
         htmlFor="repoUrl"
       >
         GitHub Repository
@@ -65,7 +68,7 @@ export function AppForm() {
       )}
       <Label
         htmlFor="branch"
-        className={fieldErrors.branch && "text-destructive"}
+        className={fieldErrors.branch ? "text-destructive" : undefined}
       >
         Branch
       </Label>
@@ -86,7 +89,7 @@ export function AppForm() {
       )}
       <Label
         htmlFor="directory"
-        className={fieldErrors.directory && "text-destructive"}
+        className={fieldErrors.directory ? "text-destructive" : undefined}
       >
         Directory
       </Label>

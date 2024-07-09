@@ -1,6 +1,6 @@
 import { payments } from "../schema"
 import * as schema from "../schema"
-import { eq, and, sql, getTableColumns } from "drizzle-orm"
+import { eq, and } from "drizzle-orm"
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
 type CreatePaymentOptions = {

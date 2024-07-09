@@ -35,13 +35,24 @@ export async function POST(context: APIContext): Promise<Response> {
   })
 
   try {
-    const body = await context.request.text()
+    const id = context.request.headers.get("x-github-delivery")
     const eventName = context.request.headers.get("x-github-event")
     const signature = context.request.headers.get("x-hub-signature-256")
 
+    if (!id || !eventName || !signature) {
+      return new Response("Missing required headers", { status: 400 })
+    }
+
+    const validEvents = ["workflow_job.in_progress", "workflow_job.completed"];
+    if (!validEvents.includes(eventName)) {
+      return new Response("Invalid event name", { status: 400 });
+    }
+
+    const body = await context.request.text()
+
     await webhooks.verifyAndReceive({
-      id: context.request.headers.get("x-github-delivery"),
-      name: eventName,
+      id,
+      name: eventName as any,
       signature: signature,
       payload: body,
     })

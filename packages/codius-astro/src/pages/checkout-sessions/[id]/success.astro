@@ -27,6 +27,10 @@ if (!session.metadata?.appId || !session.metadata?.userId) {
   return new Response("Invalid sessionId", { status: 400 })
 }
 
+if (!session.amount_total) {
+  return new Response("Missing amount_total", { status: 400 })
+}
+
 const { appId, userId } = session.metadata
 
 if (Astro.locals.user && userId !== Astro.locals.user.id) {
