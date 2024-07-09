@@ -34,6 +34,22 @@ if (!app) {
   })
 }
 
+// TODO: use GraphQL typegen
+interface WorkerUsageResponse {
+  data: {
+    viewer: {
+      accounts: Array<{
+        workersInvocationsAdaptive: Array<{
+          sum: {
+            requests: number
+            cpuTimeUs: number
+          }
+        }>
+      }>
+    }
+  }
+}
+
 // TODO: cache
 // https://developers.cloudflare.com/analytics/graphql-api/limits/#user-limits
 const getWorkerUsage = async () => {
@@ -75,7 +91,7 @@ const getWorkerUsage = async () => {
         body: JSON.stringify({ query, variables }),
       },
     )
-    const { data } = await response.json()
+    const { data } = (await response.json()) as WorkerUsageResponse
 
     return data.viewer.accounts[0].workersInvocationsAdaptive.length
       ? data.viewer.accounts[0].workersInvocationsAdaptive[0].sum
@@ -135,11 +151,13 @@ const calculateWorkerCostInNanoCents = (
   return monthlyCost + requestCost + cpuCost
 }
 
-const totalCost = calculateWorkerCostInNanoCents(
-  getTotalMonths(new Date(app.createdAt + "Z")),
-  BigInt(workerData.requests),
-  BigInt(workerData.cpuTimeUs),
-)
+const totalCost =
+  workerData &&
+  calculateWorkerCostInNanoCents(
+    getTotalMonths(new Date(app.createdAt + "Z")),
+    BigInt(workerData.requests),
+    BigInt(workerData.cpuTimeUs),
+  )
 ---
 
 <Layout>
@@ -242,13 +260,19 @@ const totalCost = calculateWorkerCostInNanoCents(
             <div class="flex flex-col space-y-1.5">
               <Label>Requests</Label>
               <div class="rounded-md border p-3">
-                {workerData.requests}
+                {workerData !== null ? workerData.requests : "N/A"}
               </div>
             </div>
             <div class="flex flex-col space-y-1.5">
               <Label>Total CPU Time</Label>
               <div class="rounded-md border p-3">
-                {workerData.cpuTimeUs ? workerData.cpuTimeUs / 1000 : 0}
+                {
+                  workerData !== null
+                    ? workerData.cpuTimeUs
+                      ? workerData.cpuTimeUs / 1000
+                      : 0
+                    : "N/A"
+                }
                 ms
               </div>
             </div>
@@ -260,7 +284,7 @@ const totalCost = calculateWorkerCostInNanoCents(
                 </div>
               </div>
               <div class="rounded-md border p-3">
-                {nanocentsToString(totalCost)}
+                {totalCost !== null ? nanocentsToString(totalCost) : "N/A"}
               </div>
             </div>
             <div class="flex flex-col space-y-1.5">
@@ -273,9 +297,11 @@ const totalCost = calculateWorkerCostInNanoCents(
               <Label>Balance</Label>
               <div class="rounded-md border p-3">
                 {
-                  nanocentsToString(
-                    centsToNanocents(app.totalFunding) - totalCost,
-                  )
+                  totalCost !== null
+                    ? nanocentsToString(
+                        centsToNanocents(app.totalFunding) - totalCost,
+                      )
+                    : "N/A"
                 }
               </div>
             </div>
