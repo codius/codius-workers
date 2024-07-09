@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "752b0da6-f922-478b-b352-bca9da3c4b98",
+  "id": "776f2f94-dc30-435f-b11c-aa9223f92f0c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "apps": {
@@ -67,14 +67,14 @@
         },
         "github_workflow_job_id": {
           "name": "github_workflow_job_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "github_workflow_run_id": {
           "name": "github_workflow_run_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

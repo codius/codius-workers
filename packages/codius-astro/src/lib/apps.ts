@@ -1,6 +1,5 @@
 import { apps, payments } from "../schema"
 import * as schema from "../schema"
-import type { WorkflowJob } from "@octokit/webhooks-types"
 import { eq, and, sql, getTableColumns } from "drizzle-orm"
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
@@ -17,6 +16,15 @@ type CreateAppOptions = {
 type AppOptions = {
   id: string
   userId: string
+}
+
+type GitHubWorkflow = {
+  githubWorkflowJobId: number
+  githubWorkflowRunId: number
+}
+
+type CompletedGitHubWorkflow = GitHubWorkflow & {
+  status: (typeof apps.$inferSelect)["status"]
 }
 
 export class Apps {
@@ -65,26 +73,34 @@ export class Apps {
     return app
   }
 
-  async updateGitHubWorkflowJob(id: string, workflowJob: WorkflowJob) {
+  async updateGitHubWorkflowJob(
+    id: string,
+    { githubWorkflowJobId, githubWorkflowRunId }: GitHubWorkflow,
+  ) {
     const [app] = await this.db
       .update(apps)
       .set({
-        githubWorkflowJobId: String(workflowJob.id),
-        githubWorkflowRunId: String(workflowJob.run_id),
+        githubWorkflowJobId,
+        githubWorkflowRunId,
       })
       .where(eq(apps.id, id))
       .returning()
     return app
   }
 
-  async updateCompletedGitHubWorkflowJob(id: string, workflowJob: WorkflowJob) {
-    const status = workflowJob.conclusion === "success" ? "deployed" : "failed"
-
+  async updateCompletedGitHubWorkflowJob(
+    id: string,
+    {
+      githubWorkflowJobId,
+      githubWorkflowRunId,
+      status,
+    }: CompletedGitHubWorkflow,
+  ) {
     const [app] = await this.db
       .update(apps)
       .set({
-        githubWorkflowJobId: String(workflowJob.id),
-        githubWorkflowRunId: String(workflowJob.run_id),
+        githubWorkflowJobId,
+        githubWorkflowRunId,
         status,
       })
       .where(eq(apps.id, id))

@@ -7,8 +7,8 @@ CREATE TABLE `apps` (
 	`commit_hash` text NOT NULL,
 	`directory` text DEFAULT '' NOT NULL,
 	`status` text DEFAULT 'pending' NOT NULL,
-	`github_workflow_job_id` text,
-	`github_workflow_run_id` text,
+	`github_workflow_job_id` integer,
+	`github_workflow_run_id` integer,
 	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
 	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action

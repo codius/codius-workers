@@ -17,20 +17,24 @@ export async function POST(context: APIContext): Promise<Response> {
     ) {
       const appId = data.payload.workflow_job.steps[1].name
 
-      await context.locals.db.apps.updateGitHubWorkflowJob(
-        appId,
-        data.payload.workflow_job,
-      )
+      await context.locals.db.apps.updateGitHubWorkflowJob(appId, {
+        githubWorkflowJobId: data.payload.workflow_job.id,
+        githubWorkflowRunId: data.payload.workflow_job.run_id,
+      })
     }
   })
 
   webhooks.on("workflow_job.completed", async (data) => {
     if (data.payload.workflow_job.workflow_name === WORKFLOW_NAME) {
       const appId = data.payload.workflow_job.steps[1].name
-      await context.locals.db.apps.updateCompletedGitHubWorkflowJob(
-        appId,
-        data.payload.workflow_job,
-      )
+      await context.locals.db.apps.updateCompletedGitHubWorkflowJob(appId, {
+        githubWorkflowJobId: data.payload.workflow_job.id,
+        githubWorkflowRunId: data.payload.workflow_job.run_id,
+        status:
+          data.payload.workflow_job.conclusion === "success"
+            ? "deployed"
+            : "failed",
+      })
     }
   })
 
