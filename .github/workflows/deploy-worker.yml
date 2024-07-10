@@ -25,6 +25,18 @@ jobs:
         with:
           repository: ${{ github.event.inputs.repo }}
           ref: ${{ github.event.inputs.commit }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install PNPM if pnpm-lock.yaml is present
+        if: hashFiles('${{ github.event.inputs.directory }}/pnpm-lock.yaml') != ''
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.5.0
+
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
