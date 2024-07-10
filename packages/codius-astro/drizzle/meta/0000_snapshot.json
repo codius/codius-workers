@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "2ca6ed73-ddf5-4666-a79c-bf857a100b31",
+  "id": "c8b9a128-2012-4eeb-a1b4-b4af68997911",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "apps": {
@@ -104,10 +104,9 @@
         }
       },
       "indexes": {
-        "apps_id_user_id_github_owner_repo_commit_hash_directory_unique": {
-          "name": "apps_id_user_id_github_owner_repo_commit_hash_directory_unique",
+        "apps_user_id_github_owner_repo_commit_hash_directory_unique": {
+          "name": "apps_user_id_github_owner_repo_commit_hash_directory_unique",
           "columns": [
-            "id",
             "user_id",
             "github_owner",
             "repo",

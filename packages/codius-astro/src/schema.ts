@@ -53,14 +53,11 @@ export const apps = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`)
-      // .$onUpdate(() => sql`CURRENT_TIMESTAMP`),
-      // .$onUpdate(() => new Date()).$type<Date>(),
       .$onUpdate(() => new Date()),
     deletedAt: integer("deleted_at", { mode: "timestamp" }),
   },
   (t) => ({
     unq: unique().on(
-      t.id,
       t.userId,
       t.githubOwner,
       t.repo,
