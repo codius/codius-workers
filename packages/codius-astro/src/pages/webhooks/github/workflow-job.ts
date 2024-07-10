@@ -47,16 +47,15 @@ export async function POST(context: APIContext): Promise<Response> {
       return new Response("Missing required headers", { status: 400 })
     }
 
-    const validEvents = ["workflow_job.in_progress", "workflow_job.completed"];
-    if (!validEvents.includes(eventName)) {
-      return new Response("Invalid event name", { status: 400 });
+    if (eventName !== "workflow_job") {
+      return new Response("Invalid event name", { status: 400 })
     }
 
     const body = await context.request.text()
 
     await webhooks.verifyAndReceive({
       id,
-      name: eventName as any,
+      name: eventName,
       signature: signature,
       payload: body,
     })
