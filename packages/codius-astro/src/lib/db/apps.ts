@@ -1,5 +1,5 @@
-import { apps, payments } from "../schema"
-import * as schema from "../schema"
+import { apps, payments } from "./schema"
+import * as schema from "./schema"
 import { eq, and, isNull, sql, getTableColumns } from "drizzle-orm"
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 

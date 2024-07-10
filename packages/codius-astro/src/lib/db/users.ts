@@ -1,5 +1,5 @@
-import { users } from "../schema"
-import * as schema from "../schema"
+import { users } from "./schema"
+import * as schema from "./schema"
 import type { Endpoints } from "@octokit/types"
 import { eq } from "drizzle-orm"
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
