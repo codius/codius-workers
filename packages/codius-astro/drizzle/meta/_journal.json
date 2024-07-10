@@ -8,6 +8,13 @@
       "when": 1720576384083,
       "tag": "0000_regular_photon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1720615871301,
+      "tag": "0001_giant_obadiah_stane",
+      "breakpoints": true
     }
   ]
 }

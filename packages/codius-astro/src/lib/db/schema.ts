@@ -63,6 +63,7 @@ export const apps = sqliteTable(
       t.repo,
       t.commitHash,
       t.directory,
+      t.deletedAt,
     ),
   }),
 )
