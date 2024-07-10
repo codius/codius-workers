@@ -241,13 +241,15 @@ const totalCost =
               <div class="rounded-md border p-3">
                 <Badge
                   className="inline-flex"
-                  variant={app.status === "deployed"
-                    ? "default"
-                    : app.status === "failed"
-                      ? "destructive"
-                      : "secondary"}
+                  variant={app.deletedAt
+                    ? "outline"
+                    : app.status === "deployed"
+                      ? "default"
+                      : app.status === "failed"
+                        ? "destructive"
+                        : "secondary"}
                 >
-                  {app.status}
+                  {app.deletedAt ? "deleted" : app.status}
                 </Badge>
               </div>
             </div>
@@ -309,7 +311,11 @@ const totalCost =
         </CardContent>
 
         <div class="mb-4">
-          <Button className="top-up-balance" data-app-id={app.id}>
+          <Button
+            className="top-up-balance"
+            data-app-id={app.id}
+            disabled={app.deletedAt !== null}
+          >
             <FiDollarSign className="icon mr-2" />
             Top Up Balance
           </Button>
@@ -328,14 +334,20 @@ const totalCost =
             </div>
           )
         }
-        <div>
-          <Button
-            variant="destructive"
-            className="delete-app"
-            data-app-id={app.id}
-            ><FiTrash2 className="icon mr-2" />Delete App</Button
-          >
-        </div>
+        {
+          app.deletedAt === null && (
+            <div>
+              <Button
+                variant="destructive"
+                className="delete-app"
+                data-app-id={app.id}
+              >
+                <FiTrash2 className="icon mr-2" />
+                Delete App
+              </Button>
+            </div>
+          )
+        }
       </CardHeader>
     </Card>
   </main>

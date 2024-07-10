@@ -1,6 +1,6 @@
 import { apps, payments } from "../schema"
 import * as schema from "../schema"
-import { eq, and, sql, getTableColumns } from "drizzle-orm"
+import { eq, and, isNull, sql, getTableColumns } from "drizzle-orm"
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
 // type NewApp = typeof apps.$inferInsert
@@ -40,8 +40,13 @@ export class Apps {
 
   async delete({ id, userId }: AppOptions) {
     const [app] = await this.db
-      .delete(apps)
-      .where(and(eq(apps.id, id), eq(apps.userId, userId)))
+      .update(apps)
+      .set({
+        deletedAt: new Date(),
+      })
+      .where(
+        and(eq(apps.id, id), eq(apps.userId, userId), isNull(apps.deletedAt)),
+      )
       .returning()
 
     return app

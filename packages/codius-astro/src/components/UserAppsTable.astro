@@ -57,14 +57,16 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
           <TableCell>
             <Badge
               variant={
-                app.status === "deployed"
-                  ? "default"
-                  : app.status === "failed"
-                    ? "destructive"
-                    : "secondary"
+                app.deletedAt
+                  ? "outline"
+                  : app.status === "deployed"
+                    ? "default"
+                    : app.status === "failed"
+                      ? "destructive"
+                      : "secondary"
               }
             >
-              {app.status}
+              {app.deletedAt ? "deleted" : app.status}
             </Badge>
           </TableCell>
           <TableCell>{new Date(app.createdAt).toUTCString()}</TableCell>

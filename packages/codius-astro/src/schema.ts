@@ -56,6 +56,7 @@ export const apps = sqliteTable(
       // .$onUpdate(() => sql`CURRENT_TIMESTAMP`),
       // .$onUpdate(() => new Date()).$type<Date>(),
       .$onUpdate(() => new Date()),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
   },
   (t) => ({
     unq: unique().on(
