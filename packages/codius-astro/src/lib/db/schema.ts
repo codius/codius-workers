@@ -1,11 +1,11 @@
-import { nanoid } from "@/lib/utils"
+import { createId } from "@paralleldrive/cuid2"
 import { sql } from "drizzle-orm"
 import { text, integer, sqliteTable, unique } from "drizzle-orm/sqlite-core"
 
 export const users = sqliteTable("users", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => nanoid()),
+    .$defaultFn(() => createId()),
   githubId: integer("github_id").notNull().unique(),
   username: text("username").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -35,7 +35,7 @@ export const apps = sqliteTable(
   {
     id: text("id")
       .primaryKey()
-      .$defaultFn(() => nanoid()),
+      .$defaultFn(() => createId()),
     userId: text("user_id").references(() => users.id),
     githubOwner: text("github_owner").notNull(),
     repo: text("repo").notNull(),
@@ -71,7 +71,7 @@ export const apps = sqliteTable(
 export const payments = sqliteTable("payments", {
   id: text("id")
     .primaryKey()
-    .$defaultFn(() => nanoid()),
+    .$defaultFn(() => createId()),
   amount: integer("amount").notNull(),
   stripeCheckoutSessionId: text("stripe_checkout_session_id").notNull(),
   appId: text("app_id").references(() => apps.id),
