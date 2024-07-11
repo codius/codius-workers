@@ -65,5 +65,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "3.64.0"
           workingDirectory: ${{ github.event.inputs.directory }}
           command: deploy --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
