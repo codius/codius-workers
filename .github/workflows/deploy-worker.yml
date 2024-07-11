@@ -26,16 +26,25 @@ jobs:
           repository: ${{ github.event.inputs.repo }}
           ref: ${{ github.event.inputs.commit }}
 
+      - name: Check for pnpm-lock.yaml
+        id: check_pnpm_lock
+        run: |
+          directory=${{ inputs.directory }}
+          file_path="${directory:+${directory}/}pnpm-lock.yaml"
+          if [ -f "$file_path" ]; then
+            echo "PNPM lock file found"
+            echo "::set-output name=setup_pnpm::true"
+          fi
+
       - name: Setup Node.js
+        if: ${{ steps.check_pnpm_lock.outputs.setup_pnpm == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Install PNPM if pnpm-lock.yaml is present
-        if: hashFiles('${{ github.event.inputs.directory }}/pnpm-lock.yaml') != ''
+      - name: Setup PNPM
+        if: ${{ steps.check_pnpm_lock.outputs.setup_pnpm == 'true' }}
         uses: pnpm/action-setup@v4
-        with:
-          version: 9.5.0
 
       - name: Pull go-toml Docker image
         run: docker pull ghcr.io/pelletier/go-toml:v2
