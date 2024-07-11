@@ -53,6 +53,7 @@ jobs:
         run: docker pull ghcr.io/pelletier/go-toml:v2
 
       - name: Sanitize wrangler.toml
+        working-directory: ${{ github.event.inputs.directory }}
         run: |
           mv wrangler.toml wrangler.toml.orig
           docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml.orig | \
