@@ -19,6 +19,7 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 GITHUB_APP_NAME = "Codius Astro Local"
 GITHUB_CLIENT_ID = "Ov23liIuGX3xy486HTL1"
+CF_DISPATCH_NAMESPACE = "testing"
 
 # Bind the Workers AI model catalog. Run machine learning models, powered by serverless GPUs, on Cloudflare’s global network
 # Docs: https://developers.cloudflare.com/pages/functions/bindings/#workers-ai
@@ -74,6 +75,7 @@ migrations_dir = "drizzle"
 [env.preview.vars]
 GITHUB_APP_NAME = "Codius Workers"
 GITHUB_CLIENT_ID = "Ov23liEdnHl3ABF7RpBD"
+CF_DISPATCH_NAMESPACE = "testing"
 
 [[env.preview.d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
@@ -87,6 +89,7 @@ migrations_dir = "drizzle"
 [env.production.vars]
 GITHUB_APP_NAME = "Codius Workers"
 GITHUB_CLIENT_ID = "Ov23liEdnHl3ABF7RpBD"
+CF_DISPATCH_NAMESPACE = "testing"
 
 [[env.production.d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB

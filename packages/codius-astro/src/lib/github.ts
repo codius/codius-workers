@@ -21,11 +21,19 @@ export type WorkflowOptions = {
   repo: string
   commitHash: string
   directory?: string
+  dispatchNamespace: string
 }
 
 export const triggerWorkflow = async (
   auth: string,
-  { appId, owner, repo, commitHash, directory }: WorkflowOptions,
+  {
+    appId,
+    owner,
+    repo,
+    commitHash,
+    directory,
+    dispatchNamespace,
+  }: WorkflowOptions,
 ) => {
   // https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event
   const octokit = new Octokit({
@@ -41,6 +49,7 @@ export const triggerWorkflow = async (
       repo: `${owner}/${repo}`,
       commit: commitHash,
       directory,
+      dispatchNamespace,
     },
   })
 }

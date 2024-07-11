@@ -25,9 +25,7 @@ export const server = {
         })
       }
       if (app.status === "deployed") {
-        // Workers for Platforms
-        // https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}
-        const url = `https://api.cloudflare.com/client/v4/accounts/${context.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID}/workers/scripts/${id}`
+        const url = `https://api.cloudflare.com/client/v4/accounts/${context.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID}/workers/dispatch/namespaces/${context.locals.runtime.env.CF_DISPATCH_NAMESPACE}/scripts/${id}`
 
         const options = {
           method: "DELETE",
@@ -89,6 +87,7 @@ export const server = {
           repo,
           commitHash: commit.sha,
           directory,
+          dispatchNamespace: context.locals.runtime.env.CF_DISPATCH_NAMESPACE,
         })
 
         return { success: true }

@@ -1,6 +1,9 @@
 on:
   workflow_dispatch:
     inputs:
+      dispatchNamespace:
+        description: 'Cloudflare Workers for Platforms dispatch namespace'
+        required: true
       appId:
         description: 'Worker App ID'
         required: true
@@ -62,4 +65,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: ${{ github.event.inputs.directory }}
-          command: deploy --name=${{ github.event.inputs.appId }}
+          command: deploy --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
