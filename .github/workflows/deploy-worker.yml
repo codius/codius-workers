@@ -37,6 +37,16 @@ jobs:
         with:
           version: 9.5.0
 
+      - name: Pull go-toml Docker image
+        run: docker pull ghcr.io/pelletier/go-toml:v2
+
+      - name: Sanitize wrangler.toml
+        run: |
+          mv wrangler.toml wrangler.toml.orig
+          docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml.orig | \
+          jq 'del(.d1_databases)' | \
+          docker run -i ghcr.io/pelletier/go-toml:v2 jsontoml > wrangler.toml
+
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
