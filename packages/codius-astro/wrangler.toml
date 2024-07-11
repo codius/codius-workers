@@ -72,25 +72,25 @@ migrations_dir = "drizzle"
 
 ######## PREVIEW environment config ########
 [env.preview.vars]
-GITHUB_APP_NAME = "Codius Astro"
-GITHUB_CLIENT_ID = "Ov23liKIFJiLg2nVC1zy"
+GITHUB_APP_NAME = "Codius Workers"
+GITHUB_CLIENT_ID = "Ov23liEdnHl3ABF7RpBD"
 
 [[env.preview.d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "test-codius-astro-d1-drizzle"
-database_id = "0da888d5-5113-4095-b01c-62a2d20e8a2c"
+database_name = "codius-workers-test"
+database_id = "75f68c49-2c64-4557-8a82-0d367023f3ef"
 preview_database_id = "DB"
 migrations_dir = "drizzle"
 
 ######## PRODUCTION environment config ########
 
 [env.production.vars]
-GITHUB_APP_NAME = "Codius Astro"
-GITHUB_CLIENT_ID = "Ov23liKIFJiLg2nVC1zy"
+GITHUB_APP_NAME = "Codius Workers"
+GITHUB_CLIENT_ID = "Ov23liEdnHl3ABF7RpBD"
 
 [[env.production.d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "test-codius-astro-d1-drizzle"
-database_id = "0da888d5-5113-4095-b01c-62a2d20e8a2c"
+database_name = "codius-workers-test"
+database_id = "75f68c49-2c64-4557-8a82-0d367023f3ef"
 preview_database_id = "DB"
 migrations_dir = "drizzle"
