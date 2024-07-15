@@ -11,6 +11,9 @@ if (!Astro.locals.user) {
 <Layout>
   <main>
     <AppForm client:load />
-    <UserAppsTable user={Astro.locals.user} />
+    <UserAppsTable
+      user={Astro.locals.user}
+      dispatcherHostname={Astro.locals.runtime.env.DISPATHER_HOSTNAME}
+    />
   </main>
 </Layout>

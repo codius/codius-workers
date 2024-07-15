@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-const { user } = Astro.props
+const { dispatcherHostname, user } = Astro.props
 const apps = await Astro.locals.db.apps.getByUserId(user.id)
 ---
 
@@ -46,12 +46,14 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
           </TableCell>
 
           <TableCell>
+            {/* TODO: */}
+            {/* `https://${app.id}.${dispatcherHostname}` */}
             <a
-              href={`https://${app.id}.brandon-4fb.workers.dev`}
+              href={`https://${dispatcherHostname}/${app.id}`}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {`https://${app.id}.brandon-4fb.workers.dev`}
+              {`https://${dispatcherHostname}/${app.id}`}
             </a>
           </TableCell>
           <TableCell>
