@@ -46,14 +46,12 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
           </TableCell>
 
           <TableCell>
-            {/* TODO: */}
-            {/* `https://${app.id}.${dispatcherHostname}` */}
             <a
-              href={`https://${dispatcherHostname}/${app.id}`}
+              href={`https://${app.id}.${dispatcherHostname}`}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {`https://${dispatcherHostname}/${app.id}`}
+              {`https://${app.id}.${dispatcherHostname}`}
             </a>
           </TableCell>
           <TableCell>

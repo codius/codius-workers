@@ -180,12 +180,12 @@ const totalCost =
                 {/* TODO: */}
                 {/* `https://${app.id}.${dispatcherHostname}` */}
                 <a
-                  href={`https://${Astro.locals.runtime.env.DISPATHER_HOSTNAME}/${app.id}`}
+                  href={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   {
-                    `https://${Astro.locals.runtime.env.DISPATHER_HOSTNAME}/${app.id}`
+                    `https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`
                   }
                 </a>
               </div>
