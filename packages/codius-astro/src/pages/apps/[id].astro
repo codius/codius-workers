@@ -54,10 +54,11 @@ interface WorkerUsageResponse {
 // https://developers.cloudflare.com/analytics/graphql-api/limits/#user-limits
 const getWorkerUsage = async () => {
   const query = `
-  query GetWorkerInvocationSums($accountTag: String, $datetimeStart: String, $datetimeEnd: String, $scriptName: String) {
+  query GetWorkerInvocationSums($accountTag: String, $dispatchNamespaceName: String, $datetimeStart: String, $datetimeEnd: String, $scriptName: String) {
     viewer {
       accounts(filter: {accountTag: $accountTag}) {
         workersInvocationsAdaptive(limit: 1000, filter: {
+          dispatchNamespaceName: $dispatchNamespaceName,
           scriptName: $scriptName,
           datetime_geq: $datetimeStart,
           datetime_leq: $datetimeEnd
@@ -74,6 +75,7 @@ const getWorkerUsage = async () => {
 
   const variables = {
     accountTag: Astro.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID,
+    dispatchNamespaceName: Astro.locals.runtime.env.CF_DISPATCH_NAMESPACE,
     scriptName: app.id,
     datetimeStart: app.createdAt.toISOString(),
     datetimeEnd: new Date().toISOString(),
@@ -177,8 +179,6 @@ const totalCost =
             <div class="flex flex-col space-y-1.5">
               <Label>URL</Label>
               <div class="rounded-md border p-3">
-                {/* TODO: */}
-                {/* `https://${app.id}.${dispatcherHostname}` */}
                 <a
                   href={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
                   target="_blank"
