@@ -16,8 +16,8 @@ compatibility_flags = ["nodejs_compat"]
 # - https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 # Note: Use secrets to store sensitive data.
 # - https://developers.cloudflare.com/workers/configuration/secrets/
-# [vars]
-# MY_VARIABLE = "production_value"
+[vars]
+DISPATCH_NAMESPACE = "testing"
 
 # Bind the Workers AI model catalog. Run machine learning models, powered by serverless GPUs, on Cloudflare’s global network
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#workers-ai
@@ -44,7 +44,7 @@ compatibility_flags = ["nodejs_compat"]
 # Bind a dispatch namespace. Use Workers for Platforms to deploy serverless functions programmatically on behalf of your customers.
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#dispatch-namespace-bindings-workers-for-platforms
 [[dispatch_namespaces]]
-binding = "DISPATCH_NAMESPACE"
+binding = "DISPATCH_NAMESPACE_BINDING"
 namespace = "testing"
 
 # Bind a Durable Object. Durable objects are a scale-to-zero compute primitive based on the actor model.

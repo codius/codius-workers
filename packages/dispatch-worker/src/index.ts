@@ -2,7 +2,25 @@ export default {
   async fetch(request, env, ctx): Promise<Response> {
     try {
       const workerName = new URL(request.url).host.split(".")[0]
-      const userWorker = env.DISPATCH_NAMESPACE.get(workerName)
+
+      const url = new URL(request.url)
+
+      if (url.pathname === "/.well-known/codius") {
+        const url = `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/workers/dispatch/namespaces/${env.DISPATCH_NAMESPACE}/scripts/${workerName}`
+
+        const options = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}`,
+          },
+        }
+
+        const response = await fetch(url, options)
+        const data = await response.json()
+        return new Response(JSON.stringify(data.result.script), response)
+      }
+
+      const userWorker = env.DISPATCH_NAMESPACE_BINDING.get(workerName)
       return await userWorker.fetch(request)
     } catch (e) {
       if (e instanceof Error) {
