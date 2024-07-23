@@ -1,23 +1,25 @@
+import Cloudflare from "cloudflare"
+
 export default {
   async fetch(request, env, ctx): Promise<Response> {
     try {
+      const cloudflare = new Cloudflare({
+        apiToken: env.CLOUDFLARE_API_TOKEN,
+      })
       const workerName = new URL(request.url).host.split(".")[0]
 
       const url = new URL(request.url)
 
       if (url.pathname === "/.well-known/codius") {
-        const url = `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/workers/dispatch/namespaces/${env.DISPATCH_NAMESPACE}/scripts/${workerName}`
-
-        const options = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${env.CLOUDFLARE_API_TOKEN}`,
-          },
-        }
-
-        const response = await fetch(url, options)
-        const data = await response.json()
-        return new Response(JSON.stringify(data.result.script), response)
+        const { script } =
+          await cloudflare.workersForPlatforms.dispatch.namespaces.scripts.get(
+            env.DISPATCH_NAMESPACE,
+            workerName,
+            {
+              account_id: env.CLOUDFLARE_ACCOUNT_ID,
+            },
+          )
+        return Response.json(script)
       }
 
       const userWorker = env.DISPATCH_NAMESPACE_BINDING.get(workerName)
