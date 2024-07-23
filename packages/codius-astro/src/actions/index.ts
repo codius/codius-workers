@@ -1,6 +1,7 @@
 import { getCommit, triggerWorkflow } from "@/lib/github"
 import { RequestError } from "@octokit/request-error"
 import { ActionError, defineAction, z } from "astro:actions"
+import Cloudflare from "cloudflare"
 import Stripe from "stripe"
 
 export const server = {
@@ -25,18 +26,17 @@ export const server = {
         })
       }
       if (app.status === "deployed") {
-        const url = `https://api.cloudflare.com/client/v4/accounts/${context.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID}/workers/dispatch/namespaces/${context.locals.runtime.env.CF_DISPATCH_NAMESPACE}/scripts/${id}`
+        const cloudflare = new Cloudflare({
+          apiToken: context.locals.runtime.env.CLOUDFLARE_API_TOKEN,
+        })
 
-        const options = {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${context.locals.runtime.env.CLOUDFLARE_API_TOKEN}`,
+        await cloudflare.workersForPlatforms.dispatch.namespaces.scripts.delete(
+          context.locals.runtime.env.CF_DISPATCH_NAMESPACE,
+          id,
+          {
+            account_id: context.locals.runtime.env.CLOUDFLARE_ACCOUNT_ID,
           },
-        }
-
-        const res = await fetch(url, options)
-        console.log(await res.json())
+        )
       }
 
       return { success: true }

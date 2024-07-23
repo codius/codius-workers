@@ -33,6 +33,7 @@
     "arctic": "^1.9.1",
     "astro": "^4.11.3",
     "class-variance-authority": "^0.7.0",
+    "cloudflare": "^3.5.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.4",
     "lucia": "^3.2.0",
