@@ -57,7 +57,7 @@ jobs:
         run: |
           mv wrangler.toml wrangler.toml.orig
           docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml.orig | \
-          jq 'del(.d1_databases)' | \
+          jq 'del(.build, .d1_databases)' | \
           docker run -i ghcr.io/pelletier/go-toml:v2 jsontoml > wrangler.toml
 
       - name: Deploy Worker
