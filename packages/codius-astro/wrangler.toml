@@ -31,8 +31,8 @@ DISPATHER_HOSTNAME = "coil.app"
 # Docs: https://developers.cloudflare.com/pages/functions/bindings/#d1-databases
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "test-codius-astro-d1-drizzle"
-database_id = "0da888d5-5113-4095-b01c-62a2d20e8a2c"
+database_name = "codius-workers-test"
+database_id = "75f68c49-2c64-4557-8a82-0d367023f3ef"
 preview_database_id = "DB"
 migrations_dir = "drizzle"
 
