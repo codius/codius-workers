@@ -1,0 +1,1 @@
+CREATE INDEX `idx_apps_user_id` ON `apps` (`user_id`);

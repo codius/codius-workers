@@ -1,6 +1,12 @@
 import { createId } from "@paralleldrive/cuid2"
 import { sql } from "drizzle-orm"
-import { text, integer, sqliteTable, unique } from "drizzle-orm/sqlite-core"
+import {
+  text,
+  integer,
+  sqliteTable,
+  index,
+  unique,
+} from "drizzle-orm/sqlite-core"
 
 export const users = sqliteTable("users", {
   id: text("id")
@@ -65,6 +71,7 @@ export const apps = sqliteTable(
       t.directory,
       t.deletedAt,
     ),
+    userIdIdx: index("idx_apps_user_id").on(t.userId),
   }),
 )
 

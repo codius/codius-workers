@@ -15,6 +15,13 @@
       "when": 1720615871301,
       "tag": "0001_giant_obadiah_stane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1721840239860,
+      "tag": "0002_motionless_nocturne",
+      "breakpoints": true
     }
   ]
 }
