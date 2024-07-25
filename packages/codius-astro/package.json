@@ -17,7 +17,7 @@
     "smee": "smee --path /webhooks/github/workflow-job --port 8788"
   },
   "dependencies": {
-    "@astrojs/check": "^0.7.0",
+    "@astrojs/check": "^0.8.2",
     "@astrojs/cloudflare": "^11.0.1",
     "@astrojs/react": "^3.6.0",
     "@astrojs/tailwind": "^5.1.0",
@@ -31,7 +31,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
     "arctic": "^1.9.1",
-    "astro": "^4.11.3",
+    "astro": "^4.12.2",
     "class-variance-authority": "^0.7.0",
     "cloudflare": "^3.5.0",
     "clsx": "^2.1.1",
