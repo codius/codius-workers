@@ -74,8 +74,8 @@ migrations_dir = "drizzle"
 
 ######## PREVIEW environment config ########
 [env.preview.vars]
-GITHUB_APP_NAME = "Codius Workers"
-GITHUB_CLIENT_ID = "Ov23liEdnHl3ABF7RpBD"
+GITHUB_APP_NAME = "Codius Workers Preview"
+GITHUB_CLIENT_ID = "Ov23libJRiE7jIZW7EPg"
 CF_DISPATCH_NAMESPACE = "testing"
 DISPATHER_HOSTNAME = "coil.app"
 
