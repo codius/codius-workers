@@ -1,0 +1,14 @@
+{
+  "name": "billing-durable-object",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint \"./*.mjs\" \"src/**/*.{js,ts}\" && prettier --check \"./*.mjs\" \"src/**/*.{js,ts}\"",
+    "format": "prettier --write \"./*.mjs\" \"src/**/*.{js,ts}\""
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240722.0"
+  }
+}
