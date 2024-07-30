@@ -17,7 +17,7 @@ import { DurableObject } from "cloudflare:workers"
  * Associate bindings declared in wrangler.toml with the TypeScript type system
  */
 export interface Env {
-  REQUEST_UNIT_PRICE_CENTS: string
+  REQUEST_UNIT_PRICE_NANO_USD: string
   TOTAL_REQUESTS_PER_UNIT: string
 
   // TODO: INCLUDED_MONTHLY_REQUESTS
@@ -30,7 +30,7 @@ export type WorkerBilling = {
     totalAllowed: bigint
   }
   funding: {
-    totalCents: bigint
+    totalNanoUSD: bigint
   }
 }
 
@@ -57,23 +57,24 @@ export class BillingDurableObject extends DurableObject {
   async getWorkerBilling(): Promise<WorkerBilling> {
     return {
       funding: {
-        totalCents:
-          (await this.ctx.storage.get<bigint>("totalFundingCents")) || 0n,
+        totalNanoUSD:
+          (await this.ctx.storage.get<bigint>("totalFundingNanoUSD")) ?? 0n,
       },
       requests: {
-        total: (await this.ctx.storage.get<bigint>("totalRequests")) || 0n,
+        total: (await this.ctx.storage.get<bigint>("totalRequests")) ?? 0n,
         totalAllowed:
-          (await this.ctx.storage.get("totalAllowedRequests")) ||
+          (await this.ctx.storage.get("totalAllowedRequests")) ??
           BigInt(this.env.INCLUDED_REQUESTS),
       },
     }
   }
 
   async incrementWorkerRequests(): Promise<void> {
-    let totalRequests: bigint =
-      (await this.ctx.storage.get("totalRequests")) || 0n
-    const totalAllowedRequests: bigint =
-      (await this.ctx.storage.get("totalAllowedRequests")) || BigInt(this.env.INCLUDED_REQUESTS)
+    let totalRequests =
+      (await this.ctx.storage.get<bigint>("totalRequests")) ?? 0n
+    const totalAllowedRequests =
+      (await this.ctx.storage.get<bigint>("totalAllowedRequests")) ??
+      BigInt(this.env.INCLUDED_REQUESTS)
 
     if (totalRequests >= totalAllowedRequests) {
       throw new LimitExceededError("Request limit exceeded")
@@ -87,19 +88,19 @@ export class BillingDurableObject extends DurableObject {
     await this.ctx.storage.put("totalRequests", totalRequests)
   }
 
-  async addWorkerFunds(amountCents: bigint): Promise<void> {
-    let totalFundingCents =
-      (await this.ctx.storage.get<bigint>("totalFundingCents")) || 0n
-    totalFundingCents += amountCents
-    await this.ctx.storage.put("totalFundingCents", totalFundingCents)
+  async addWorkerFunds(amountNanoUSD: bigint): Promise<void> {
+    let totalFundingNanoUSD =
+      (await this.ctx.storage.get<bigint>("totalFundingNanoUSD")) ?? 0n
+    totalFundingNanoUSD += amountNanoUSD
+    await this.ctx.storage.put("totalFundingNanoUSD", totalFundingNanoUSD)
 
-    const unitPriceCents = BigInt(this.env.REQUEST_UNIT_PRICE_CENTS)
+    const unitPriceNanoUSD = BigInt(this.env.REQUEST_UNIT_PRICE_NANO_USD)
     const requestsPerUnit = BigInt(this.env.TOTAL_REQUESTS_PER_UNIT)
 
     // Calculate the total allowed requests
     const totalAllowedRequests =
       BigInt(this.env.INCLUDED_REQUESTS) +
-      (totalFundingCents * requestsPerUnit) / unitPriceCents
+      (totalFundingNanoUSD * requestsPerUnit) / unitPriceNanoUSD
     await this.ctx.storage.put("totalAllowedRequests", totalAllowedRequests)
   }
 }

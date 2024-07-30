@@ -18,7 +18,8 @@ compatibility_flags = ["nodejs_compat"]
 # - https://developers.cloudflare.com/workers/configuration/secrets/
 [vars]
 DISPATCH_NAMESPACE = "testing"
-REQUEST_UNIT_PRICE_CENTS = "30"
+# $0.30 / million requests
+REQUEST_UNIT_PRICE_NANO_USD = "300000000"
 TOTAL_REQUESTS_PER_UNIT = "1000000"
 INCLUDED_REQUESTS = "100"
 
