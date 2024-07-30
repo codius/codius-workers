@@ -164,7 +164,7 @@ const totalCost = getWorkerTotalCost(workerBilling)
               <div class="flex items-center space-x-2">
                 <Label>Total Cost</Label>
                 <div class="ml-4">
-                  <CostTooltip client:only="react" />
+                  <CostTooltip client:only="react" {...workerBilling.pricing} />
                 </div>
               </div>
               <div class="rounded-md border p-3">
