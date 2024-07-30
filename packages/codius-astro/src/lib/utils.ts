@@ -1,3 +1,4 @@
+import type { WorkerBilling } from "billing-durable-object"
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -11,7 +12,10 @@ export const centsToString = (amount: number): string =>
 export const centsToNanocents = (amount: number): bigint =>
   BigInt(amount) * 1_000_000_000n
 
-export const nanocentsToString = (amount: bigint): string => {
+export const centsToNanoUSD = (amount: number): bigint =>
+  BigInt(amount) * 10_000_000n
+
+export const nanoUSDToString = (amount: bigint): string => {
   const isNegative = amount < 0n
   let nanocentsStr = amount.toString()
 
@@ -19,14 +23,14 @@ export const nanocentsToString = (amount: bigint): string => {
     nanocentsStr = nanocentsStr.substring(1)
   }
 
-  const neededLength = 12
+  const neededLength = 10
   const currentLength = nanocentsStr.length
   if (currentLength < neededLength) {
     // Pad with zeros to ensure correct decimal placement
     nanocentsStr = "0".repeat(neededLength - currentLength) + nanocentsStr
   }
 
-  const position = nanocentsStr.length - 11
+  const position = nanocentsStr.length - 9
   const dollars = nanocentsStr.substring(0, position)
   const cents = nanocentsStr.substring(position)
 
@@ -34,4 +38,19 @@ export const nanocentsToString = (amount: bigint): string => {
   const trimmedCents = cents.length > 2 ? cents.replace(/0+$/, "") : cents
 
   return `${isNegative ? "-" : ""}$${dollars}.${trimmedCents.padEnd(2, "0")}`
+}
+
+export const getWorkerTotalCost = ({
+  requests,
+  pricing,
+}: WorkerBilling): bigint => {
+  const chargeableRequests = requests.total - pricing.includedRequests
+
+  if (chargeableRequests <= 0n) {
+    return 0n
+  }
+
+  return (
+    (chargeableRequests * pricing.unitPriceNanoUSD) / pricing.requestsPerUnit
+  )
 }

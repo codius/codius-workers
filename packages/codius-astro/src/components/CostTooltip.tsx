@@ -16,9 +16,7 @@ export function CostTooltip() {
           </span>
         </TooltipTrigger>
         <TooltipContent>
-          <p>$0.02 / month</p>
           <p>$0.30 / million requests</p>
-          <p>$0.02 / million CPU seconds</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

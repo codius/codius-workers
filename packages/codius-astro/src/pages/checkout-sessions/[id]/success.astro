@@ -1,7 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro"
 import Stripe from "stripe"
-import { centsToString } from "@/lib/utils"
+import { centsToNanoUSD, centsToString } from "@/lib/utils"
 
 const sessionId = Astro.params.id
 if (!sessionId) {
@@ -43,6 +43,11 @@ await Astro.locals.db.payments.create({
   stripeCheckoutSessionId: sessionId,
   amount: session.amount_total,
 })
+
+const billingId: DurableObjectId =
+  Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.idFromName(appId)
+const billing = Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.get(billingId)
+await billing.addWorkerFunds(centsToNanoUSD(session.amount_total))
 ---
 
 <Layout>

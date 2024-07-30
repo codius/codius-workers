@@ -32,6 +32,11 @@ export type WorkerBilling = {
   funding: {
     totalNanoUSD: bigint
   }
+  pricing: {
+    unitPriceNanoUSD: bigint
+    requestsPerUnit: bigint
+    includedRequests: bigint
+  }
 }
 
 export class LimitExceededError extends Error {
@@ -65,6 +70,11 @@ export class BillingDurableObject extends DurableObject {
         totalAllowed:
           (await this.ctx.storage.get("totalAllowedRequests")) ??
           BigInt(this.env.INCLUDED_REQUESTS),
+      },
+      pricing: {
+        unitPriceNanoUSD: BigInt(this.env.REQUEST_UNIT_PRICE_NANO_USD),
+        requestsPerUnit: BigInt(this.env.TOTAL_REQUESTS_PER_UNIT),
+        includedRequests: BigInt(this.env.INCLUDED_REQUESTS),
       },
     }
   }

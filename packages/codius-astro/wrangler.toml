@@ -39,10 +39,10 @@ migrations_dir = "drizzle"
 # Bind a Durable Object. Durable objects are a scale-to-zero compute primitive based on the actor model.
 # Durable Objects can live for as long as needed. Use these when you need a long-running "server", such as in realtime apps.
 # Docs: https://developers.cloudflare.com/workers/runtime-apis/durable-objects
-# [[durable_objects.bindings]]
-# name = "MY_DURABLE_OBJECT"
-# class_name = "MyDurableObject"
-# script_name = 'my-durable-object'
+[[durable_objects.bindings]]
+name = "BILLING_DURABLE_OBJECT"
+class_name = "BillingDurableObject"
+script_name = 'dispatcher'
 
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
 # Docs: https://developers.cloudflare.com/pages/functions/bindings/#kv-namespaces
@@ -86,6 +86,11 @@ database_id = "75f68c49-2c64-4557-8a82-0d367023f3ef"
 preview_database_id = "DB"
 migrations_dir = "drizzle"
 
+[[env.preview.durable_objects.bindings]]
+name = "BILLING_DURABLE_OBJECT"
+class_name = "BillingDurableObject"
+script_name = 'dispatcher'
+
 ######## PRODUCTION environment config ########
 
 [env.production.vars]
@@ -100,3 +105,8 @@ database_name = "codius-workers-test"
 database_id = "75f68c49-2c64-4557-8a82-0d367023f3ef"
 preview_database_id = "DB"
 migrations_dir = "drizzle"
+
+[[env.production.durable_objects.bindings]]
+name = "BILLING_DURABLE_OBJECT"
+class_name = "BillingDurableObject"
+script_name = 'dispatcher'

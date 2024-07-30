@@ -1,6 +1,6 @@
-import { apps, payments } from "./schema"
+import { apps } from "./schema"
 import * as schema from "./schema"
-import { eq, and, isNull, sql, getTableColumns, desc } from "drizzle-orm"
+import { eq, and, isNull, desc } from "drizzle-orm"
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
 // type NewApp = typeof apps.$inferInsert
@@ -63,20 +63,6 @@ export class Apps {
     return this.db.query.apps.findFirst({
       where: and(eq(apps.id, id), eq(apps.userId, userId)),
     })
-  }
-
-  async getWithTotalFunding({ id, userId }: AppOptions) {
-    const columns = getTableColumns(apps)
-    const [app] = await this.db
-      .select({
-        ...columns,
-        totalFunding: sql<number>`COALESCE(SUM(payments.amount), 0)`,
-      })
-      .from(apps)
-      .where(and(eq(apps.id, id), eq(apps.userId, userId)))
-      .leftJoin(payments, eq(apps.id, payments.appId))
-      .groupBy(apps.id)
-    return app
   }
 
   async updateGitHubWorkflowJob(
