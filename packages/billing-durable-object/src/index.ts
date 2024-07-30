@@ -17,17 +17,21 @@ import { DurableObject } from "cloudflare:workers"
  * Associate bindings declared in wrangler.toml with the TypeScript type system
  */
 export interface Env {
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-  MY_DURABLE_OBJECT: DurableObjectNamespace<BillingDurableObject>
-
   REQUEST_UNIT_PRICE_CENTS: string
   TOTAL_REQUESTS_PER_UNIT: string
+
+  // TODO: INCLUDED_MONTHLY_REQUESTS
+  INCLUDED_REQUESTS: string
 }
 
 export type WorkerBilling = {
-  totalAllowedWorkerRequests: bigint
-  totalWorkerRequests: bigint
-  totalFundingCents: bigint
+  requests: {
+    total: bigint
+    totalAllowed: bigint
+  }
+  funding: {
+    totalCents: bigint
+  }
 }
 
 export class LimitExceededError extends Error {
@@ -50,37 +54,42 @@ export class BillingDurableObject extends DurableObject {
     super(ctx, env)
   }
 
-  /**
-   * The Durable Object exposes an RPC method sayHello which will be invoked when when a Durable
-   *  Object instance receives a request from a Worker via the same method invocation on the stub
-   *
-   * @returns The greeting to be sent back to the Worker
-   */
-  async sayHello(): Promise<string> {
-    return `Hello, ${this.ctx.id}!`
+  async getWorkerBilling(): Promise<WorkerBilling> {
+    return {
+      funding: {
+        totalCents:
+          (await this.ctx.storage.get<bigint>("totalFundingCents")) || 0n,
+      },
+      requests: {
+        total: (await this.ctx.storage.get<bigint>("totalRequests")) || 0n,
+        totalAllowed:
+          (await this.ctx.storage.get("totalAllowedRequests")) ||
+          BigInt(this.env.INCLUDED_REQUESTS),
+      },
+    }
   }
 
   async incrementWorkerRequests(): Promise<void> {
-    let totalWorkerRequests: bigint =
-      (await this.ctx.storage.get("totalWorkerRequests")) || 0n
-    const totalAllowedWorkerRequests: bigint =
-      (await this.ctx.storage.get("totalAllowedWorkerRequests")) || 0n
+    let totalRequests: bigint =
+      (await this.ctx.storage.get("totalRequests")) || 0n
+    const totalAllowedRequests: bigint =
+      (await this.ctx.storage.get("totalAllowedRequests")) || BigInt(this.env.INCLUDED_REQUESTS)
 
-    if (totalWorkerRequests >= totalAllowedWorkerRequests) {
+    if (totalRequests >= totalAllowedRequests) {
       throw new LimitExceededError("Request limit exceeded")
     }
 
-    totalWorkerRequests++
+    totalRequests++
 
     // You do not have to worry about a concurrent request having modified the value in storage.
     // "input gates" will automatically protect against unwanted concurrency.
     // Read-modify-write is safe.
-    await this.ctx.storage.put("totalWorkerRequests", totalWorkerRequests)
+    await this.ctx.storage.put("totalRequests", totalRequests)
   }
 
-  async addWorkerFunds(amountCents: bigint): Promise<WorkerBilling> {
-    let totalFundingCents: bigint =
-      (await this.ctx.storage.get("totalFundingCents")) || 0n
+  async addWorkerFunds(amountCents: bigint): Promise<void> {
+    let totalFundingCents =
+      (await this.ctx.storage.get<bigint>("totalFundingCents")) || 0n
     totalFundingCents += amountCents
     await this.ctx.storage.put("totalFundingCents", totalFundingCents)
 
@@ -88,21 +97,9 @@ export class BillingDurableObject extends DurableObject {
     const requestsPerUnit = BigInt(this.env.TOTAL_REQUESTS_PER_UNIT)
 
     // Calculate the total allowed requests
-    const totalAllowedWorkerRequests =
+    const totalAllowedRequests =
+      BigInt(this.env.INCLUDED_REQUESTS) +
       (totalFundingCents * requestsPerUnit) / unitPriceCents
-    await this.ctx.storage.put(
-      "totalAllowedWorkerRequests",
-      totalAllowedWorkerRequests,
-    )
-
-    return {
-      totalFundingCents,
-      totalAllowedWorkerRequests,
-      totalWorkerRequests:
-        (await this.ctx.storage.get("totalWorkerRequests")) || 0n,
-    }
+    await this.ctx.storage.put("totalAllowedRequests", totalAllowedRequests)
   }
-
-  // async deductMonthlyCost(): Promise<WorkerBilling> {
-  // }
 }

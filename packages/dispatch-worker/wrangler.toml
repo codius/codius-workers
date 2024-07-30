@@ -20,6 +20,7 @@ compatibility_flags = ["nodejs_compat"]
 DISPATCH_NAMESPACE = "testing"
 REQUEST_UNIT_PRICE_CENTS = "30"
 TOTAL_REQUESTS_PER_UNIT = "1000000"
+INCLUDED_REQUESTS = "100"
 
 # Bind the Workers AI model catalog. Run machine learning models, powered by serverless GPUs, on Cloudflare’s global network
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#workers-ai
