@@ -150,6 +150,9 @@ importers:
 
   packages/dispatch-worker:
     dependencies:
+      billing-durable-object:
+        specifier: workspace:^
+        version: link:../billing-durable-object
       cloudflare:
         specifier: ^3.5.0
         version: 3.5.0

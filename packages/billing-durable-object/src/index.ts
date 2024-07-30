@@ -30,6 +30,13 @@ export type WorkerBilling = {
   totalFundingCents: bigint
 }
 
+export class LimitExceededError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "LimitExceededError"
+  }
+}
+
 /** A Durable Object's behavior is defined in an exported Javascript class */
 export class BillingDurableObject extends DurableObject {
   /**
@@ -53,21 +60,22 @@ export class BillingDurableObject extends DurableObject {
     return `Hello, ${this.ctx.id}!`
   }
 
-  async incrementWorkerRequests(): Promise<WorkerBilling> {
+  async incrementWorkerRequests(): Promise<void> {
     let totalWorkerRequests: bigint =
       (await this.ctx.storage.get("totalWorkerRequests")) || 0n
+    const totalAllowedWorkerRequests: bigint =
+      (await this.ctx.storage.get("totalAllowedWorkerRequests")) || 0n
+
+    if (totalWorkerRequests >= totalAllowedWorkerRequests) {
+      throw new LimitExceededError("Request limit exceeded")
+    }
+
     totalWorkerRequests++
+
     // You do not have to worry about a concurrent request having modified the value in storage.
     // "input gates" will automatically protect against unwanted concurrency.
     // Read-modify-write is safe.
     await this.ctx.storage.put("totalWorkerRequests", totalWorkerRequests)
-    return {
-      totalWorkerRequests,
-      totalAllowedWorkerRequests:
-        (await this.ctx.storage.get("totalAllowedWorkerRequests")) || 0n,
-      totalFundingCents:
-        (await this.ctx.storage.get("totalFundingCents")) || 0n,
-    }
   }
 
   async addWorkerFunds(amountCents: bigint): Promise<WorkerBilling> {
