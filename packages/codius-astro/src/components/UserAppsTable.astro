@@ -9,6 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import type { User } from "lucia"
+
+interface Props {
+  user: User
+  dispatcherHostname: string
+}
 
 const { dispatcherHostname, user } = Astro.props
 const apps = await Astro.locals.db.apps.getByUserId(user.id)

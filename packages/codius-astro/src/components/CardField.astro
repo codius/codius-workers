@@ -1,0 +1,29 @@
+---
+import { Label } from "@/components/ui/label"
+
+interface Props {
+  label?: string
+  content?: string
+  link?: string
+  linkTarget?: string
+}
+
+const { label, content, link, linkTarget = "_blank" } = Astro.props
+---
+
+<div class="flex flex-col space-y-1.5">
+  <Label>{label}</Label>
+  <slot name="label" />
+  <div class="rounded-md border p-3">
+    {
+      link ? (
+        <a href={link} target={linkTarget} rel="noopener noreferrer">
+          {content}
+        </a>
+      ) : (
+        content
+      )
+    }
+    <slot name="content" />
+  </div>
+</div>

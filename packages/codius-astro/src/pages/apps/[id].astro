@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { FiDollarSign, FiGithub, FiTrash2 } from "react-icons/fi"
 import { Label } from "@/components/ui/label"
+import CardField from "@/components/CardField.astro"
 import { CostTooltip } from "@/components/CostTooltip"
 import Layout from "@/layouts/Layout.astro"
 import { getWorkerTotalCost, nanoUSDToString } from "@/lib/utils"
@@ -56,137 +57,90 @@ const totalCost = getWorkerTotalCost(workerBilling)
         </CardDescription>
         <CardContent>
           <div class="grid w-full items-center gap-4">
-            <div class="flex flex-col space-y-1.5">
-              <Label>URL</Label>
-              <div class="rounded-md border p-3">
-                <a
-                  href={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {
-                    `https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`
-                  }
-                </a>
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label>Repo</Label>
-              <div class="rounded-md border p-3">
-                <a
-                  href={`https://github.com/${app.githubOwner}/${app.repo}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center"
-                  style="align-items: baseline;"
-                >
-                  <FiGithub className="mr-2" />{app.githubOwner}/{app.repo}
-                </a>
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label>Branch (at time of deploy)</Label>
-              <div class="rounded-md border p-3">
-                <a
-                  href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.branch}`}
-                  target="_blank"
-                  rel="noopener noreferrer">{app.branch}</a
-                >
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label>Commit</Label>
-              <div class="rounded-md border p-3">
-                <a
-                  href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer">{app.commitHash}</a
-                >
-              </div>
-            </div>
+            <CardField
+              label="URL"
+              content={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
+              link={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
+            />
+            <CardField label="Repo">
+              <a
+                href={`https://github.com/${app.githubOwner}/${app.repo}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center"
+                style="align-items: baseline;"
+                slot="content"
+              >
+                <FiGithub className="mr-2" />{app.githubOwner}/{app.repo}
+              </a>
+            </CardField>
+            <CardField
+              label="Branch (at time of deploy)"
+              content={app.branch}
+              link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.branch}`}
+            />
+            <CardField
+              label="Commit"
+              content={app.commitHash}
+              link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
+            />
             {
               app.directory && (
-                <div class="flex flex-col space-y-1.5">
-                  <Label>Directory</Label>
-                  <div class="rounded-md border p-3">
-                    <a
-                      href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {app.directory}
-                    </a>
-                  </div>
-                </div>
+                <CardField
+                  label="Directory"
+                  content={app.directory}
+                  link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
+                />
               )
             }
-            <div class="flex flex-col space-y-1.5">
-              <Label>Status</Label>
-              <div class="rounded-md border p-3">
-                <Badge
-                  className="inline-flex"
-                  variant={app.deletedAt
-                    ? "outline"
-                    : app.status === "deployed"
-                      ? "default"
-                      : app.status === "failed"
-                        ? "destructive"
-                        : "secondary"}
-                >
-                  {app.deletedAt ? "deleted" : app.status}
-                </Badge>
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label>Created At</Label>
-              <div class="rounded-md border p-3">
-                {new Date(app.createdAt + "Z").toUTCString()}
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label>Requests</Label>
-              <div class="rounded-md border p-3">
-                {workerBilling.requests.total.toString()}
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label>Remaining Requests</Label>
-              <div class="rounded-md border p-3">
-                {
-                  (
-                    workerBilling.requests.totalAllowed -
-                    workerBilling.requests.total
-                  ).toString()
-                }
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <div class="flex items-center space-x-2">
+            <CardField label="Status">
+              <Badge
+                className="inline-flex"
+                variant={app.deletedAt
+                  ? "outline"
+                  : app.status === "deployed"
+                    ? "default"
+                    : app.status === "failed"
+                      ? "destructive"
+                      : "secondary"}
+                slot="content"
+              >
+                {app.deletedAt ? "deleted" : app.status}
+              </Badge>
+            </CardField>
+            <CardField
+              label="Created At"
+              content={new Date(app.createdAt + "Z").toUTCString()}
+            />
+            <CardField
+              label="Requests"
+              content={workerBilling.requests.total.toString()}
+            />
+            <CardField
+              label="Remaining Requests"
+              content={(
+                workerBilling.requests.totalAllowed -
+                workerBilling.requests.total
+              ).toString()}
+            />
+            <CardField content={nanoUSDToString(totalCost)}>
+              <div class="flex items-center space-x-2" slot="label">
                 <Label>Total Cost</Label>
                 <div class="ml-4">
                   <CostTooltip client:only="react" {...workerBilling.pricing} />
                 </div>
               </div>
-              <div class="rounded-md border p-3">
-                {nanoUSDToString(totalCost)}
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label>Total Funding</Label>
-              <div class="rounded-md border p-3">
-                {nanoUSDToString(workerBilling.funding.totalNanoUSD)}
-              </div>
-            </div>
-            <div class="flex flex-col space-y-1.5">
-              <Label>Balance</Label>
-              <div class="rounded-md border p-3">
-                {
-                  nanoUSDToString(
-                    workerBilling.funding.totalNanoUSD - totalCost,
-                  )
-                }
-              </div>
-            </div>
+            </CardField>
+            <CardField
+              label="Total Funding"
+              content={nanoUSDToString(workerBilling.funding.totalNanoUSD)}
+            />
+            <CardField
+              label="Balance"
+              content={nanoUSDToString(
+                workerBilling.funding.totalNanoUSD - totalCost,
+              )}
+            />
           </div>
         </CardContent>
 
