@@ -1,2 +1,0 @@
-DROP INDEX IF EXISTS `apps_user_id_github_owner_repo_commit_hash_directory_unique`;--> statement-breakpoint
-CREATE UNIQUE INDEX `apps_user_id_github_owner_repo_commit_hash_directory_deleted_at_unique` ON `apps` (`user_id`,`github_owner`,`repo`,`commit_hash`,`directory`,`deleted_at`);

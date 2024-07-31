@@ -31,8 +31,8 @@ DISPATHER_HOSTNAME = "coil.app"
 # Docs: https://developers.cloudflare.com/pages/functions/bindings/#d1-databases
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "codius-workers-test"
-database_id = "75f68c49-2c64-4557-8a82-0d367023f3ef"
+database_name = "test-codius-workers"
+database_id = "799c2160-d538-4d84-a561-b422b5f9e365"
 preview_database_id = "DB"
 migrations_dir = "drizzle"
 
@@ -81,8 +81,8 @@ DISPATHER_HOSTNAME = "coil.app"
 
 [[env.preview.d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "codius-workers-test"
-database_id = "75f68c49-2c64-4557-8a82-0d367023f3ef"
+database_name = "test-codius-workers"
+database_id = "799c2160-d538-4d84-a561-b422b5f9e365"
 preview_database_id = "DB"
 migrations_dir = "drizzle"
 
@@ -101,8 +101,8 @@ DISPATHER_HOSTNAME = "coil.app"
 
 [[env.production.d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "codius-workers-test"
-database_id = "75f68c49-2c64-4557-8a82-0d367023f3ef"
+database_name = "test-codius-workers"
+database_id = "799c2160-d538-4d84-a561-b422b5f9e365"
 preview_database_id = "DB"
 migrations_dir = "drizzle"
 

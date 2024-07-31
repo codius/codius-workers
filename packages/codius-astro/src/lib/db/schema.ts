@@ -26,7 +26,9 @@ export const users = sqliteTable("users", {
 export const sessions = sqliteTable("sessions", {
   id: text("id").primaryKey(),
   expiresAt: integer("expires_at").notNull(),
-  userId: text("user_id").references(() => users.id),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
@@ -42,7 +44,9 @@ export const apps = sqliteTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => createId()),
-    userId: text("user_id").references(() => users.id),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
     githubOwner: text("github_owner").notNull(),
     repo: text("repo").notNull(),
     branch: text("branch").notNull(),
@@ -81,7 +85,9 @@ export const payments = sqliteTable("payments", {
     .$defaultFn(() => createId()),
   amount: integer("amount").notNull(),
   stripeCheckoutSessionId: text("stripe_checkout_session_id").notNull(),
-  appId: text("app_id").references(() => apps.id),
+  appId: text("app_id")
+    .notNull()
+    .references(() => apps.id),
   userId: text("user_id").references(() => users.id),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()

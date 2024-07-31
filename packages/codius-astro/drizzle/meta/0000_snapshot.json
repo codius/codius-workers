@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c8b9a128-2012-4eeb-a1b4-b4af68997911",
+  "id": "ca561cda-e276-4c9a-879e-c97d1d02d7d6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "apps": {
@@ -18,7 +18,7 @@
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "github_owner": {
@@ -104,14 +104,22 @@
         }
       },
       "indexes": {
-        "apps_user_id_github_owner_repo_commit_hash_directory_unique": {
-          "name": "apps_user_id_github_owner_repo_commit_hash_directory_unique",
+        "idx_apps_user_id": {
+          "name": "idx_apps_user_id",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "apps_user_id_github_owner_repo_commit_hash_directory_deleted_at_unique": {
+          "name": "apps_user_id_github_owner_repo_commit_hash_directory_deleted_at_unique",
           "columns": [
             "user_id",
             "github_owner",
             "repo",
             "commit_hash",
-            "directory"
+            "directory",
+            "deleted_at"
           ],
           "isUnique": true
         }
@@ -162,7 +170,7 @@
           "name": "app_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "user_id": {
@@ -242,7 +250,7 @@
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "created_at": {

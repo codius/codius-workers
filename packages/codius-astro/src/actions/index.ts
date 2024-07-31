@@ -120,14 +120,14 @@ export const server = {
       appId: z.string(),
     }),
     handler: async ({ appId }, context) => {
-      if (!context.locals.user) {
-        throw new ActionError({
-          code: "UNAUTHORIZED",
-        })
-      }
-
       const stripe = new Stripe(context.locals.runtime.env.STRIPE_SECRET_KEY)
       const { origin } = new URL(context.request.url)
+      const metadata: Stripe.MetadataParam = {
+        appId,
+      }
+      if (context.locals.user) {
+        metadata.userId = context.locals.user.id
+      }
       const session = await stripe.checkout.sessions.create({
         line_items: [
           {
@@ -136,11 +136,8 @@ export const server = {
           },
         ],
         mode: "payment",
-        metadata: {
-          // TODO: encrypt
-          appId,
-          userId: context.locals.user.id,
-        },
+        // TODO: encrypt
+        metadata,
         success_url: `${origin}/checkout-sessions/{CHECKOUT_SESSION_ID}/success`,
         cancel_url: `${origin}?canceled=true`,
       })

@@ -23,7 +23,7 @@ if (session.currency !== "usd") {
   return new Response("Invalid currency", { status: 400 })
 }
 
-if (!session.metadata?.appId || !session.metadata?.userId) {
+if (!session.metadata?.appId) {
   return new Response("Invalid sessionId", { status: 400 })
 }
 
@@ -33,7 +33,7 @@ if (!session.amount_total) {
 
 const { appId, userId } = session.metadata
 
-if (Astro.locals.user && userId !== Astro.locals.user.id) {
+if (Astro.locals.user && userId && userId !== Astro.locals.user.id) {
   return new Response("Forbidden", { status: 403 })
 }
 
