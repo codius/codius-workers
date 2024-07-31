@@ -1,0 +1,48 @@
+---
+import CardField from "@/components/CardField.astro"
+import { Label } from "@/components/ui/label"
+import { CostTooltip } from "@/components/CostTooltip"
+import { getWorkerTotalCost, nanoUSDToString } from "@/lib/utils"
+
+interface Props {
+  appId: string
+}
+
+const { appId } = Astro.props
+
+const billingId: DurableObjectId =
+  Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.idFromName(appId)
+const billing = Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.get(billingId)
+const workerBilling = await billing.getWorkerBilling()
+
+const totalCost = getWorkerTotalCost(workerBilling)
+---
+
+<>
+  <CardField
+    label="Requests"
+    content={workerBilling.requests.total.toString()}
+  />
+  <CardField
+    label="Remaining Requests"
+    content={(
+      workerBilling.requests.totalAllowed - workerBilling.requests.total
+    ).toString()}
+  />
+  <CardField content={nanoUSDToString(totalCost)}>
+    <div class="flex items-center space-x-2" slot="label">
+      <Label>Total Cost</Label>
+      <div class="ml-4">
+        <CostTooltip client:only="react" {...workerBilling.pricing} />
+      </div>
+    </div>
+  </CardField>
+  <CardField
+    label="Total Funding"
+    content={nanoUSDToString(workerBilling.funding.totalNanoUSD)}
+  />
+  <CardField
+    label="Balance"
+    content={nanoUSDToString(workerBilling.funding.totalNanoUSD - totalCost)}
+  />
+</>

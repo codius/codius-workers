@@ -9,11 +9,9 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FiDollarSign, FiGithub, FiTrash2 } from "react-icons/fi"
-import { Label } from "@/components/ui/label"
+import AppBilling from "@/components/AppBilling.astro"
 import CardField from "@/components/CardField.astro"
-import { CostTooltip } from "@/components/CostTooltip"
 import Layout from "@/layouts/Layout.astro"
-import { getWorkerTotalCost, nanoUSDToString } from "@/lib/utils"
 
 if (!Astro.locals.user) {
   return Astro.redirect("/")
@@ -34,13 +32,6 @@ if (!app) {
     statusText: "Not found",
   })
 }
-
-const billingId: DurableObjectId =
-  Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.idFromName(app.id)
-const billing = Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.get(billingId)
-const workerBilling = await billing.getWorkerBilling()
-
-const totalCost = getWorkerTotalCost(workerBilling)
 ---
 
 <Layout>
@@ -112,35 +103,7 @@ const totalCost = getWorkerTotalCost(workerBilling)
               label="Created At"
               content={new Date(app.createdAt + "Z").toUTCString()}
             />
-            <CardField
-              label="Requests"
-              content={workerBilling.requests.total.toString()}
-            />
-            <CardField
-              label="Remaining Requests"
-              content={(
-                workerBilling.requests.totalAllowed -
-                workerBilling.requests.total
-              ).toString()}
-            />
-            <CardField content={nanoUSDToString(totalCost)}>
-              <div class="flex items-center space-x-2" slot="label">
-                <Label>Total Cost</Label>
-                <div class="ml-4">
-                  <CostTooltip client:only="react" {...workerBilling.pricing} />
-                </div>
-              </div>
-            </CardField>
-            <CardField
-              label="Total Funding"
-              content={nanoUSDToString(workerBilling.funding.totalNanoUSD)}
-            />
-            <CardField
-              label="Balance"
-              content={nanoUSDToString(
-                workerBilling.funding.totalNanoUSD - totalCost,
-              )}
-            />
+            <AppBilling appId={app.id} />
           </div>
         </CardContent>
 
