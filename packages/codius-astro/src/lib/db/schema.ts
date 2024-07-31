@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2"
-import { sql } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm"
 import {
   text,
   integer,
@@ -78,6 +78,13 @@ export const apps = sqliteTable(
     userIdIdx: index("idx_apps_user_id").on(t.userId),
   }),
 )
+
+export const appsRelations = relations(apps, ({ one }) => ({
+  deployer: one(users, {
+    fields: [apps.userId],
+    references: [users.id],
+  }),
+}))
 
 export const payments = sqliteTable("payments", {
   id: text("id")

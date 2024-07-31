@@ -13,20 +13,22 @@ import AppBilling from "@/components/AppBilling.astro"
 import CardField from "@/components/CardField.astro"
 import Layout from "@/layouts/Layout.astro"
 
-if (!Astro.locals.user) {
-  return Astro.redirect("/")
-}
-
 if (!Astro.params.id) {
   return Astro.redirect("/apps")
 }
 
-const app = await Astro.locals.db.apps.get({
-  id: Astro.params.id,
-  userId: Astro.locals.user.id,
-})
+const app = await Astro.locals.db.apps.getById(Astro.params.id)
 
 if (!app) {
+  return new Response(null, {
+    status: 404,
+    statusText: "Not found",
+  })
+}
+
+const userIsDeployer = Astro.locals.user?.id === app.deployer.id
+
+if (app.status !== "deployed" && !userIsDeployer) {
   return new Response(null, {
     status: 404,
     statusText: "Not found",
@@ -41,9 +43,9 @@ if (!app) {
         <CardTitle>{app.id}</CardTitle>
         <CardDescription
           >Deployed by <a
-            href={`https://github.com/${Astro.locals.user.username}`}
+            href={`https://github.com/${app.deployer.username}`}
             target="_blank"
-            rel="noopener noreferrer">{Astro.locals.user.username}</a
+            rel="noopener noreferrer">{app.deployer.username}</a
           >
         </CardDescription>
         <CardContent>
@@ -84,21 +86,27 @@ if (!app) {
                 />
               )
             }
-            <CardField label="Status">
-              <Badge
-                className="inline-flex"
-                variant={app.deletedAt
-                  ? "outline"
-                  : app.status === "deployed"
-                    ? "default"
-                    : app.status === "failed"
-                      ? "destructive"
-                      : "secondary"}
-                slot="content"
-              >
-                {app.deletedAt ? "deleted" : app.status}
-              </Badge>
-            </CardField>
+            {
+              userIsDeployer && (
+                <CardField label="Status">
+                  <Badge
+                    className="inline-flex"
+                    variant={
+                      app.deletedAt
+                        ? "outline"
+                        : app.status === "deployed"
+                          ? "default"
+                          : app.status === "failed"
+                            ? "destructive"
+                            : "secondary"
+                    }
+                    slot="content"
+                  >
+                    {app.deletedAt ? "deleted" : app.status}
+                  </Badge>
+                </CardField>
+              )
+            }
             <CardField
               label="Created At"
               content={new Date(app.createdAt + "Z").toUTCString()}
@@ -118,21 +126,23 @@ if (!app) {
           </Button>
         </div>
         {
-          app.githubWorkflowRunId && app.githubWorkflowJobId && (
-            <div class="mb-4">
-              <Button
-                className="view-workflow"
-                data-workflow-run-id={app.githubWorkflowRunId}
-                data-workflow-job-id={app.githubWorkflowJobId}
-              >
-                <FiGithub className="mr-2" />
-                View Workflow
-              </Button>
-            </div>
-          )
+          app.githubWorkflowRunId &&
+            app.githubWorkflowJobId &&
+            userIsDeployer && (
+              <div class="mb-4">
+                <Button
+                  className="view-workflow"
+                  data-workflow-run-id={app.githubWorkflowRunId}
+                  data-workflow-job-id={app.githubWorkflowJobId}
+                >
+                  <FiGithub className="mr-2" />
+                  View Workflow
+                </Button>
+              </div>
+            )
         }
         {
-          app.deletedAt === null && (
+          app.deletedAt === null && userIsDeployer && (
             <div>
               <Button
                 variant="destructive"

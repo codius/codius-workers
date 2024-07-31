@@ -59,9 +59,12 @@ export class Apps {
     })
   }
 
-  async get({ id, userId }: AppOptions) {
+  async getById(id: string) {
     return this.db.query.apps.findFirst({
-      where: and(eq(apps.id, id), eq(apps.userId, userId)),
+      where: eq(apps.id, id),
+      with: {
+        deployer: true,
+      },
     })
   }
 
