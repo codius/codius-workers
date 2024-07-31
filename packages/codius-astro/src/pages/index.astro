@@ -1,6 +1,5 @@
 ---
-import Layout from "../layouts/Layout.astro"
-import Login from "../components/Login.astro"
+import Layout from "@/layouts/Layout.astro"
 
 if (Astro.locals.user) {
   return Astro.redirect("/apps")
@@ -8,7 +7,5 @@ if (Astro.locals.user) {
 ---
 
 <Layout>
-  <main>
-    <Login />
-  </main>
+  <main></main>
 </Layout>

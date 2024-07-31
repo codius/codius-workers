@@ -1,6 +1,7 @@
 ---
 import "@/styles/globals.css"
 import { ModeToggle } from "@/components/ModeToggle"
+import Login from "@/components/Login.astro"
 import Logout from "@/components/Logout.astro"
 
 interface Props {
@@ -74,7 +75,7 @@ const { title = "Welcome to Codius" } = Astro.props
     </svg>
     <h1>Welcome to <span>Codius</span></h1>
     <ModeToggle client:load />
-    {Astro.locals.user && <Logout />}
+    {Astro.locals.user ? <Logout /> : <Login />}
     <slot />
   </body>
 </html>
