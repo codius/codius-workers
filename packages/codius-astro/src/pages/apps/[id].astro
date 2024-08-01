@@ -49,6 +49,39 @@ if (app.status !== "deployed" && !userIsDeployer) {
           >
         </CardDescription>
         <CardContent>
+          {
+            userIsDeployer && (
+              <div class="flex justify-start items-center mb-4 space-x-4">
+                <CardField label="Status">
+                  <Badge
+                    className="inline-flex"
+                    variant={
+                      app.deletedAt
+                        ? "outline"
+                        : app.status === "deployed"
+                          ? "default"
+                          : app.status === "failed"
+                            ? "destructive"
+                            : "secondary"
+                    }
+                    slot="content"
+                  >
+                    {app.deletedAt ? "deleted" : app.status}
+                  </Badge>
+                </CardField>
+                {app.githubWorkflowRunId && app.githubWorkflowJobId && (
+                  <Button
+                    className="view-workflow"
+                    data-workflow-run-id={app.githubWorkflowRunId}
+                    data-workflow-job-id={app.githubWorkflowJobId}
+                  >
+                    <FiGithub className="mr-2" />
+                    View Workflow
+                  </Button>
+                )}
+              </div>
+            )
+          }
           <div class="grid grid-cols-2 gap-4">
             <div class="col-span-1 grid gap-4">
               <CardField
@@ -87,78 +120,40 @@ if (app.status !== "deployed" && !userIsDeployer) {
                   />
                 )
               }
-              {
-                userIsDeployer && (
-                  <CardField label="Status">
-                    <Badge
-                      className="inline-flex"
-                      variant={
-                        app.deletedAt
-                          ? "outline"
-                          : app.status === "deployed"
-                            ? "default"
-                            : app.status === "failed"
-                              ? "destructive"
-                              : "secondary"
-                      }
-                      slot="content"
-                    >
-                      {app.deletedAt ? "deleted" : app.status}
-                    </Badge>
-                  </CardField>
-                )
-              }
               <CardField
                 label="Created At"
                 content={new Date(app.createdAt + "Z").toUTCString()}
               />
+              {
+                app.deletedAt === null && userIsDeployer && (
+                  <div>
+                    <Button
+                      variant="destructive"
+                      className="delete-app"
+                      data-app-id={app.id}
+                    >
+                      <FiTrash2 className="icon mr-2" />
+                      Delete App
+                    </Button>
+                  </div>
+                )
+              }
             </div>
             <div class="col-span-1 grid gap-4">
               <AppBilling appId={app.id} />
+              <div class="mb-4">
+                <Button
+                  className="top-up-balance"
+                  data-app-id={app.id}
+                  disabled={app.deletedAt !== null}
+                >
+                  <FiDollarSign className="icon mr-2" />
+                  Top Up Balance
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
-
-        <div class="mb-4">
-          <Button
-            className="top-up-balance"
-            data-app-id={app.id}
-            disabled={app.deletedAt !== null}
-          >
-            <FiDollarSign className="icon mr-2" />
-            Top Up Balance
-          </Button>
-        </div>
-        {
-          app.githubWorkflowRunId &&
-            app.githubWorkflowJobId &&
-            userIsDeployer && (
-              <div class="mb-4">
-                <Button
-                  className="view-workflow"
-                  data-workflow-run-id={app.githubWorkflowRunId}
-                  data-workflow-job-id={app.githubWorkflowJobId}
-                >
-                  <FiGithub className="mr-2" />
-                  View Workflow
-                </Button>
-              </div>
-            )
-        }
-        {
-          app.deletedAt === null && userIsDeployer && (
-            <div>
-              <Button
-                variant="destructive"
-                className="delete-app"
-                data-app-id={app.id}
-              >
-                <FiTrash2 className="icon mr-2" />
-                Delete App
-              </Button>
-            </div>
-          )
-        }
       </CardHeader>
     </Card>
   </main>
