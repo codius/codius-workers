@@ -49,69 +49,73 @@ if (app.status !== "deployed" && !userIsDeployer) {
           >
         </CardDescription>
         <CardContent>
-          <div class="grid w-full items-center gap-4">
-            <CardField
-              label="URL"
-              content={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
-              link={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
-            />
-            <CardField label="Repo">
-              <a
-                href={`https://github.com/${app.githubOwner}/${app.repo}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center"
-                style="align-items: baseline;"
-                slot="content"
-              >
-                <FiGithub className="mr-2" />{app.githubOwner}/{app.repo}
-              </a>
-            </CardField>
-            <CardField
-              label="Branch (at time of deploy)"
-              content={app.branch}
-              link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.branch}`}
-            />
-            <CardField
-              label="Commit"
-              content={app.commitHash}
-              link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
-            />
-            {
-              app.directory && (
-                <CardField
-                  label="Directory"
-                  content={app.directory}
-                  link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
-                />
-              )
-            }
-            {
-              userIsDeployer && (
-                <CardField label="Status">
-                  <Badge
-                    className="inline-flex"
-                    variant={
-                      app.deletedAt
-                        ? "outline"
-                        : app.status === "deployed"
-                          ? "default"
-                          : app.status === "failed"
-                            ? "destructive"
-                            : "secondary"
-                    }
-                    slot="content"
-                  >
-                    {app.deletedAt ? "deleted" : app.status}
-                  </Badge>
-                </CardField>
-              )
-            }
-            <CardField
-              label="Created At"
-              content={new Date(app.createdAt + "Z").toUTCString()}
-            />
-            <AppBilling appId={app.id} />
+          <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-1 grid gap-4">
+              <CardField
+                label="URL"
+                content={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
+                link={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
+              />
+              <CardField label="Repo">
+                <a
+                  href={`https://github.com/${app.githubOwner}/${app.repo}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center"
+                  style="align-items: baseline;"
+                  slot="content"
+                >
+                  <FiGithub className="mr-2" />{app.githubOwner}/{app.repo}
+                </a>
+              </CardField>
+              <CardField
+                label="Branch (at time of deploy)"
+                content={app.branch}
+                link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.branch}`}
+              />
+              <CardField
+                label="Commit"
+                content={app.commitHash}
+                link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
+              />
+              {
+                app.directory && (
+                  <CardField
+                    label="Directory"
+                    content={app.directory}
+                    link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
+                  />
+                )
+              }
+              {
+                userIsDeployer && (
+                  <CardField label="Status">
+                    <Badge
+                      className="inline-flex"
+                      variant={
+                        app.deletedAt
+                          ? "outline"
+                          : app.status === "deployed"
+                            ? "default"
+                            : app.status === "failed"
+                              ? "destructive"
+                              : "secondary"
+                      }
+                      slot="content"
+                    >
+                      {app.deletedAt ? "deleted" : app.status}
+                    </Badge>
+                  </CardField>
+                )
+              }
+              <CardField
+                label="Created At"
+                content={new Date(app.createdAt + "Z").toUTCString()}
+              />
+            </div>
+            <div class="col-span-1 grid gap-4">
+              <AppBilling appId={app.id} />
+            </div>
           </div>
         </CardContent>
 
