@@ -1,4 +1,4 @@
-import { LimitExceededError } from "billing-durable-object"
+import { isLimitExceededError } from "billing-durable-object"
 import Cloudflare from "cloudflare"
 
 export { BillingDurableObject } from "billing-durable-object"
@@ -29,14 +29,24 @@ export default {
       const billingId: DurableObjectId =
         env.BILLING_DURABLE_OBJECT.idFromName(workerName)
       const billing = env.BILLING_DURABLE_OBJECT.get(billingId)
-      await billing.incrementWorkerRequests()
-
+      try {
+        await billing.incrementWorkerRequests()
+      } catch (e) {
+        if (isLimitExceededError(e)) {
+          return new Response(null, {
+            status: 302,
+            headers: {
+              Location: `https://codius-workers.pages.dev/apps/${workerName}/402`,
+            },
+          })
+        } else {
+          throw e
+        }
+      }
       const userWorker = env.DISPATCH_NAMESPACE_BINDING.get(workerName)
       return await userWorker.fetch(request)
     } catch (e) {
-      if (e instanceof LimitExceededError) {
-        return new Response("Worker balance exceeded", { status: 402 })
-      } else if (e instanceof Error) {
+      if (e instanceof Error) {
         if (e.message.startsWith("Worker not found")) {
           // we tried to get a worker that doesn't exist in our dispatch namespace
           return new Response("", { status: 404 })

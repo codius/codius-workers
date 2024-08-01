@@ -39,11 +39,10 @@ export type WorkerBilling = {
   }
 }
 
-export class LimitExceededError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = "LimitExceededError"
-  }
+const LIMIT_EXCEEDED_MESSAGE = "Request limit exceeded"
+
+export function isLimitExceededError(error: unknown): boolean {
+  return error instanceof Error && error.message === LIMIT_EXCEEDED_MESSAGE
 }
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
@@ -87,7 +86,7 @@ export class BillingDurableObject extends DurableObject {
       BigInt(this.env.INCLUDED_REQUESTS)
 
     if (totalRequests >= totalAllowedRequests) {
-      throw new LimitExceededError("Request limit exceeded")
+      throw new Error(LIMIT_EXCEEDED_MESSAGE)
     }
 
     totalRequests++
