@@ -40,7 +40,14 @@ if (app.status !== "deployed" && !userIsDeployer) {
   <main>
     <Card>
       <CardHeader>
-        <CardTitle>{app.id}</CardTitle>
+        <CardTitle>
+          <a
+            href={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            >{`${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}</a
+          >
+        </CardTitle>
         <CardDescription
           >Deployed by <a
             href={`https://github.com/${app.deployer.username}`}
@@ -51,7 +58,7 @@ if (app.status !== "deployed" && !userIsDeployer) {
         <CardContent>
           {
             userIsDeployer && (
-              <div class="flex justify-start items-center mb-4 space-x-4">
+              <div class="flex flex-col items-start mb-4 gap-4">
                 <CardField label="Status">
                   <Badge
                     className="inline-flex"
@@ -84,11 +91,6 @@ if (app.status !== "deployed" && !userIsDeployer) {
           }
           <div class="grid grid-cols-2 gap-4">
             <div class="col-span-1 grid gap-4">
-              <CardField
-                label="URL"
-                content={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
-                link={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
-              />
               <CardField label="Repo">
                 <a
                   href={`https://github.com/${app.githubOwner}/${app.repo}`}
@@ -111,15 +113,11 @@ if (app.status !== "deployed" && !userIsDeployer) {
                 content={app.commitHash}
                 link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
               />
-              {
-                app.directory && (
-                  <CardField
-                    label="Directory"
-                    content={app.directory}
-                    link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
-                  />
-                )
-              }
+              <CardField
+                label="Directory"
+                content={app.directory || "/"}
+                link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
+              />
               <CardField
                 label="Created At"
                 content={new Date(app.createdAt + "Z").toUTCString()}
@@ -141,7 +139,7 @@ if (app.status !== "deployed" && !userIsDeployer) {
             </div>
             <div class="col-span-1 grid gap-4">
               <AppBilling appId={app.id} />
-              <div class="mb-4">
+              <div>
                 <Button
                   className="top-up-balance"
                   data-app-id={app.id}

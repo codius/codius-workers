@@ -18,7 +18,7 @@ const workerBilling = await billing.getWorkerBilling()
 const totalCost = getWorkerTotalCost(workerBilling)
 ---
 
-<>
+<div class="grid w-full items-center gap-4">
   <CardField
     label="Requests"
     content={workerBilling.requests.total.toString()}
@@ -45,4 +45,4 @@ const totalCost = getWorkerTotalCost(workerBilling)
     label="Balance"
     content={nanoUSDToString(workerBilling.funding.totalNanoUSD - totalCost)}
   />
-</>
+</div>

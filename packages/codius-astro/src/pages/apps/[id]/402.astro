@@ -18,9 +18,7 @@ if (!appId) {
       <CardHeader>
         <CardTitle>{appId}</CardTitle>
         <CardContent>
-          <div class="grid w-full items-center gap-4">
-            <AppBilling appId={appId} />
-          </div>
+          <AppBilling appId={appId} />
         </CardContent>
         <div class="mb-4">
           <Button className="top-up-balance" data-app-id={appId}>
