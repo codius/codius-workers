@@ -3,6 +3,7 @@ import CardField from "@/components/CardField.astro"
 import { Label } from "@/components/ui/label"
 import { CostTooltip } from "@/components/CostTooltip"
 import { getWorkerTotalCost, nanoUSDToString } from "@/lib/utils"
+import type { WorkerBilling } from "billing-durable-object"
 
 interface Props {
   appId: string
@@ -10,10 +11,34 @@ interface Props {
 
 const { appId } = Astro.props
 
-const billingId: DurableObjectId =
-  Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.idFromName(appId)
-const billing = Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.get(billingId)
-const workerBilling = await billing.getWorkerBilling()
+const getWorkerBilling = async (): Promise<WorkerBilling> => {
+  // Workaround for:
+  // Cannot access `BillingDurableObject#getWorkerBilling` as Durable Object RPC is not yet supported between multiple `wrangler dev` sessions.
+  if (process.env.NODE_ENV === "development") {
+    return {
+      requests: {
+        total: 0n,
+        totalAllowed: 1000000n,
+      },
+      funding: {
+        totalNanoUSD: 1_000_000_000n,
+      },
+      pricing: {
+        unitPriceNanoUSD: 300_000_000n,
+        requestsPerUnit: 1_000_000n,
+        includedRequests: 100n,
+      },
+    }
+  } else {
+    const billingId: DurableObjectId =
+      Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.idFromName(appId)
+    const billing =
+      Astro.locals.runtime.env.BILLING_DURABLE_OBJECT.get(billingId)
+    return await billing.getWorkerBilling()
+  }
+}
+
+const workerBilling = await getWorkerBilling()
 
 const totalCost = getWorkerTotalCost(workerBilling)
 ---
