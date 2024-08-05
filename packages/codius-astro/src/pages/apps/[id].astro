@@ -171,7 +171,7 @@ if (app.status !== "deployed" && !userIsDeployer) {
       }
       topUpBalanceButton.disabled = true
       try {
-        const sessionUrl = await actions.createCheckoutSession({
+        const sessionUrl = await actions.createCheckoutSession.orThrow({
           appId: topUpBalanceButton.dataset.appId,
         })
         window.location.href = sessionUrl

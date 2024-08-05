@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   actions,
-  getActionProps,
   isInputError,
   ActionError,
   ActionInputError,
@@ -19,7 +18,7 @@ type FieldErrors = ActionInputError<{
 }>["fields"]
 
 export function AppForm() {
-  // TODO: useActionState
+  // TODO: useActionState with React 19
   const [error, setError] = useState<ActionError | null>(null)
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
@@ -27,7 +26,7 @@ export function AppForm() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    const { error } = await actions.deployApp.safe(formData)
+    const { error } = await actions.deployApp(formData)
     if (error) {
       if (isInputError(error)) {
         setFieldErrors(error.fields)
@@ -41,8 +40,7 @@ export function AppForm() {
   }
 
   return (
-    <form method="POST" onSubmit={onSubmit}>
-      <Input {...getActionProps(actions.deployApp)} />
+    <form method="POST" action={actions.deployApp} onSubmit={onSubmit}>
       <Label
         className={fieldErrors.repoUrl ? "text-destructive" : undefined}
         htmlFor="repoUrl"
