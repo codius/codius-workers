@@ -24,7 +24,7 @@ export default defineConfig({
       minify: false,
     },
     ssr: {
-      external: ["node:path", "node:async_hooks"],
+      external: ["node:path"],
     },
   },
 })
