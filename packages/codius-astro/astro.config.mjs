@@ -19,12 +19,4 @@ export default defineConfig({
   security: {
     checkOrigin: true,
   },
-  vite: {
-    build: {
-      minify: false,
-    },
-    ssr: {
-      external: ["node:path"],
-    },
-  },
 })
