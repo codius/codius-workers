@@ -2,6 +2,7 @@ import cloudflare from "@astrojs/cloudflare"
 import react from "@astrojs/react"
 import tailwind from "@astrojs/tailwind"
 import { defineConfig } from "astro/config"
+import simpleStackQuery from "simple-stack-query"
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,7 +16,13 @@ export default defineConfig({
       configPath: "wrangler.toml",
     },
   }),
-  integrations: [react(), tailwind({ applyBaseStyles: false })],
+  integrations: [
+    react(),
+    tailwind({
+      applyBaseStyles: false,
+    }),
+    simpleStackQuery(),
+  ],
   security: {
     checkOrigin: true,
   },

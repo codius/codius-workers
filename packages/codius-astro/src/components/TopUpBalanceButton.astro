@@ -1,0 +1,38 @@
+---
+import { Button } from "@/components/ui/button"
+import { FiDollarSign } from "react-icons/fi"
+import { scope } from "simple:scope"
+
+type Props = {
+  appId: string
+  disabled?: boolean
+}
+
+const { appId, disabled } = Astro.props
+---
+
+<RootElement data={{ appId }}>
+  <Button disabled={disabled} data-target={scope("top-up-balance-btn")}>
+    <FiDollarSign className="mr-2" />
+    Top Up Balance
+  </Button>
+</RootElement>
+
+<script>
+  import { actions } from "astro:actions"
+
+  RootElement.ready<{ appId: string }>(async ($, ctx) => {
+    $("top-up-balance-btn").addEventListener("click", async () => {
+      $<HTMLButtonElement>("top-up-balance-btn").disabled = true
+      try {
+        const sessionUrl = await actions.createCheckoutSession.orThrow({
+          appId: ctx.data.appId,
+        })
+        window.location.href = sessionUrl
+      } catch (error) {
+        console.error("Failed to create checkout session:", error)
+        $<HTMLButtonElement>("top-up-balance-btn").disabled = false
+      }
+    })
+  })
+</script>

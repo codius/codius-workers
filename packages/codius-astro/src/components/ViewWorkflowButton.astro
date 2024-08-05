@@ -1,0 +1,33 @@
+---
+import { Button } from "@/components/ui/button"
+import { FiGithub } from "react-icons/fi"
+import { scope } from "simple:scope"
+
+type Props = {
+  workflowRunId: number
+  workflowJobId: number
+}
+
+const { workflowRunId, workflowJobId } = Astro.props
+---
+
+<RootElement data={{ workflowRunId, workflowJobId }}>
+  <Button data-target={scope("view-workflow-btn")}>
+    <FiGithub className="mr-2" />
+    View Workflow
+  </Button>
+</RootElement>
+
+<script>
+  RootElement.ready<{ workflowRunId: number; workflowJobId: number }>(
+    async ($, ctx) => {
+      $("view-workflow-btn").addEventListener("click", async () => {
+        window.open(
+          `https://github.com/codius/codius-astro/actions/runs/${ctx.data.workflowRunId}/job/${ctx.data.workflowJobId}`,
+          "_blank",
+          "noopener,noreferrer",
+        )
+      })
+    },
+  )
+</script>

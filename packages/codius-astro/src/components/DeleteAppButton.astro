@@ -1,0 +1,37 @@
+---
+import { Button } from "@/components/ui/button"
+import { FiTrash2 } from "react-icons/fi"
+import { scope } from "simple:scope"
+
+type Props = {
+  appId: string
+}
+
+const { appId } = Astro.props
+---
+
+<RootElement data={{ appId }}>
+  <Button variant="destructive" data-target={scope("delete-btn")}>
+    <FiTrash2 data-target={scope("trash-icon")} className="mr-2" />
+    Delete App
+  </Button>
+</RootElement>
+
+<script>
+  import { actions } from "astro:actions"
+
+  RootElement.ready<{ appId: string }>(async ($, ctx) => {
+    $("delete-btn").addEventListener("click", async () => {
+      $<HTMLButtonElement>("delete-btn").disabled = true
+      $("trash-icon").classList.add("animate-spin")
+      try {
+        await actions.deleteApp.orThrow({ id: ctx.data.appId })
+        window.location.href = "/apps"
+      } catch (error) {
+        console.error("Failed to delete app:", error)
+        $("trash-icon").classList.remove("animate-spin")
+        $<HTMLButtonElement>("delete-btn").disabled = false
+      }
+    })
+  })
+</script>
