@@ -1,0 +1,19 @@
+---
+import { Button } from "@/components/ui/button"
+import { FiGithub } from "react-icons/fi"
+import { scope } from "simple:scope"
+---
+
+<RootElement>
+  <Button data-target={scope("login-btn")}>
+    <FiGithub className="mr-2" />Log in with GitHub</Button
+  >
+</RootElement>
+
+<script>
+  RootElement.ready(async ($) => {
+    $("login-btn").addEventListener("click", async () => {
+      window.location.href = "/login/github"
+    })
+  })
+</script>

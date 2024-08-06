@@ -1,8 +1,8 @@
 ---
 import "@/styles/globals.css"
 import { ModeToggle } from "@/components/ModeToggle"
-import Login from "@/components/Login.astro"
-import Logout from "@/components/Logout.astro"
+import LoginButton from "@/components/LoginButton.astro"
+import LogoutButton from "@/components/LogoutButton.astro"
 
 interface Props {
   title?: string
@@ -75,7 +75,15 @@ const { title = "Welcome to Codius" } = Astro.props
     </svg>
     <h1>Welcome to <span>Codius</span></h1>
     <ModeToggle client:load />
-    {Astro.locals.user ? <Logout /> : <Login />}
+    {
+      Astro.locals.user ? (
+        <LogoutButton />
+      ) : (
+        <div>
+          <LoginButton />
+        </div>
+      )
+    }
     <slot />
   </body>
 </html>
