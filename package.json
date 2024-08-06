@@ -3,10 +3,12 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "lint": "pnpm -r run lint",
-    "format": "pnpm -r run format",
+    "lint": "pnpm run lint-ci && pnpm -r run lint",
+    "format": "pnpm run format-ci && pnpm -r run format",
     "smee": "pnpm --filter codius-astro smee",
-    "cf-typegen": "pnpm -r run cf-typegen"
+    "cf-typegen": "pnpm -r run cf-typegen",
+    "lint-ci": "prettier --check .github/workflows/**/*.yml",
+    "format-ci": "prettier --write .github/workflows/**/*.yml"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240729.0",
