@@ -1,9 +1,8 @@
 ---
 import AppBilling from "@/components/AppBilling.astro"
-import { Button } from "@/components/ui/button"
+import TopUpBalanceButton from "@/components/TopUpBalanceButton.astro"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Layout from "@/layouts/Layout.astro"
-import { FiDollarSign } from "react-icons/fi"
 
 const appId = Astro.params.id
 
@@ -21,38 +20,9 @@ if (!appId) {
           <AppBilling appId={appId} />
         </CardContent>
         <div class="mb-4">
-          <Button className="top-up-balance" data-app-id={appId}>
-            <FiDollarSign className="icon mr-2" />
-            Top Up Balance
-          </Button>
+          <TopUpBalanceButton appId={appId} />
         </div>
       </CardHeader>
     </Card>
   </main>
 </Layout>
-
-<script>
-  import { actions } from "astro:actions"
-
-  const topUpBalanceButton = document.querySelector<HTMLButtonElement>(
-    "button.top-up-balance",
-  )
-  if (topUpBalanceButton) {
-    topUpBalanceButton.addEventListener("click", async () => {
-      if (!topUpBalanceButton.dataset.appId) {
-        console.error("Missing appId")
-        return
-      }
-      topUpBalanceButton.disabled = true
-      try {
-        const sessionUrl = await actions.createCheckoutSession.orThrow({
-          appId: topUpBalanceButton.dataset.appId,
-        })
-        window.location.href = sessionUrl
-      } catch (error) {
-        console.error("Failed to create checkout session:", error)
-        topUpBalanceButton.disabled = false
-      }
-    })
-  }
-</script>
