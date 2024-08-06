@@ -57,7 +57,7 @@ jobs:
         run: |
           mv wrangler.toml wrangler.toml.orig
           docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml.orig | \
-          jq 'del(.build, .d1_databases)' | \
+          jq 'del(.d1_databases)' | \
           docker run -i ghcr.io/pelletier/go-toml:v2 jsontoml > wrangler.toml
 
       - name: Deploy Worker
@@ -67,4 +67,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "3.64.0"
           workingDirectory: ${{ github.event.inputs.directory }}
-          command: deploy --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
+          command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
