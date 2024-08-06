@@ -2,24 +2,31 @@ on:
   workflow_dispatch:
     inputs:
       dispatchNamespace:
-        description: 'Cloudflare Workers for Platforms dispatch namespace'
+        description: "Cloudflare Workers for Platforms dispatch namespace"
         required: true
       appId:
-        description: 'Worker App ID'
+        description: "Worker App ID"
         required: true
       repo:
-        description: 'GitHub repository name'
+        description: "GitHub repository name"
         required: true
       commit:
-        description: 'Git commit hash'
+        description: "Git commit hash"
         required: true
       directory:
-        description: 'Directory to deploy'
+        description: "Directory to deploy"
         required: false
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    env:
+      wranglerVersion: "3.68.0"
+
     steps:
       - name: ${{github.event.inputs.appId}}
         run: echo run identifier ${{ github.run_id }}
@@ -60,11 +67,18 @@ jobs:
           jq 'del(.d1_databases)' | \
           docker run -i ghcr.io/pelletier/go-toml:v2 jsontoml > wrangler.toml
 
+      - name: Bundle/Build Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: ${{ env.wranglerVersion }}
+          workingDirectory: ${{ github.event.inputs.directory }}
+          command: deploy --dry-run --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
+
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "3.64.0"
+          wranglerVersion: ${{ env.wranglerVersion }}
           workingDirectory: ${{ github.event.inputs.directory }}
           command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
