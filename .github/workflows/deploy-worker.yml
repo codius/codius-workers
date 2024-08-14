@@ -26,6 +26,7 @@ jobs:
 
     env:
       wranglerVersion: "3.68.0"
+      outDir: "codius-dist"
 
     steps:
       - name: ${{github.event.inputs.appId}}
@@ -67,12 +68,19 @@ jobs:
           jq 'del(.d1_databases)' | \
           docker run -i ghcr.io/pelletier/go-toml:v2 jsontoml > wrangler.toml
 
+      - name: Extract wrangler.toml [main]
+        id: wrangler-main
+        working-directory: ${{ github.event.inputs.directory }}
+        run: |
+          wrangler_main=$(docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml | jq -r '.main')
+          echo "WRANGLER_MAIN=${wrangler_main}" >> "$GITHUB_OUTPUT"
+
       - name: Bundle/Build Worker
         uses: cloudflare/wrangler-action@v3
         with:
           wranglerVersion: ${{ env.wranglerVersion }}
           workingDirectory: ${{ github.event.inputs.directory }}
-          command: deploy --dry-run --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
+          command: deploy --dry-run --outdir=${{ env.outDir }} --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
@@ -81,4 +89,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: ${{ env.wranglerVersion }}
           workingDirectory: ${{ github.event.inputs.directory }}
-          command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
+          command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }} ${{ env.outDir }}/${{ steps.wrangler-main.outputs.WRANGLER_MAIN }}
