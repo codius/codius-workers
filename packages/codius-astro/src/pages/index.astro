@@ -1,7 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro"
 
-if (Astro.locals.user) {
+if (Astro.locals.auth().userId) {
   return Astro.redirect("/apps")
 }
 ---

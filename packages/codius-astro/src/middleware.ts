@@ -1,10 +1,12 @@
 import { initializeLucia, initializeGitHub } from "@/lib/auth"
 import { DB } from "@/lib/db"
-import { defineMiddleware } from "astro:middleware"
+import { clerkMiddleware } from "@clerk/astro/server"
+import type { MiddlewareHandler } from "astro"
+import { sequence } from "astro:middleware"
 
-// import { verifyRequestOrigin } from "lucia"
+const clerkAuth = clerkMiddleware()
 
-export const onRequest = defineMiddleware(async (context, next) => {
+const setupContext: MiddlewareHandler = (context, next) => {
   context.locals.db = new DB(context.locals.runtime.env.DB)
   const lucia = initializeLucia(context.locals.runtime.env.DB)
   context.locals.lucia = lucia
@@ -13,31 +15,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.runtime.env.GITHUB_CLIENT_SECRET,
   )
   context.locals.github = github
-  const sessionId = context.cookies.get(lucia.sessionCookieName)?.value ?? null
-  if (!sessionId) {
-    context.locals.user = null
-    context.locals.session = null
-    return next()
-  }
-
-  const { session, user } = await lucia.validateSession(sessionId)
-  if (session && session.fresh) {
-    const sessionCookie = lucia.createSessionCookie(session.id)
-    context.cookies.set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    )
-  }
-  if (!session) {
-    const sessionCookie = lucia.createBlankSessionCookie()
-    context.cookies.set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    )
-  }
-  context.locals.session = session
-  context.locals.user = user
   return next()
-})
+}
+
+export const onRequest = sequence(clerkAuth, setupContext)

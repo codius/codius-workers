@@ -33,7 +33,11 @@ if (!session.amount_total) {
 
 const { appId, userId } = session.metadata
 
-if (Astro.locals.user && userId && userId !== Astro.locals.user.id) {
+if (
+  Astro.locals.auth().userId &&
+  userId &&
+  userId !== Astro.locals.auth().userId
+) {
   return new Response("Forbidden", { status: 403 })
 }
 

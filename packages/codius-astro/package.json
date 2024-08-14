@@ -21,6 +21,7 @@
     "@astrojs/cloudflare": "^11.0.4",
     "@astrojs/react": "^3.6.1",
     "@astrojs/tailwind": "^5.1.0",
+    "@clerk/astro": "^1.0.12",
     "@lucia-auth/adapter-sqlite": "^3.0.1",
     "@octokit/request-error": "^6.1.1",
     "@octokit/rest": "^21.0.0",

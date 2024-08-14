@@ -10,14 +10,16 @@ export const server = {
       id: z.string(),
     }),
     handler: async ({ id }, context) => {
-      if (!context.locals.user) {
+      // TODO: protect /_actions/deleteApp in clerk?
+      const { userId } = context.locals.auth()
+      if (!userId) {
         throw new ActionError({
           code: "UNAUTHORIZED",
         })
       }
       const app = await context.locals.db.apps.delete({
         id,
-        userId: context.locals.user.id,
+        userId,
       })
       if (!app) {
         throw new ActionError({
@@ -60,7 +62,9 @@ export const server = {
     }),
     // https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#access-api-context
     handler: async ({ repoUrl, branch, directory }, context) => {
-      if (!context.locals.user) {
+      // TODO: protect /_actions/deployApp in clerk?
+      const { userId } = context.locals.auth()
+      if (!userId) {
         throw new ActionError({
           code: "UNAUTHORIZED",
         })
@@ -73,7 +77,7 @@ export const server = {
         const commit = await getCommit({ owner, repo, branch })
 
         const app = await context.locals.db.apps.create({
-          userId: context.locals.user.id,
+          userId,
           githubOwner: owner,
           repo,
           branch,
@@ -125,8 +129,8 @@ export const server = {
       const metadata: Stripe.MetadataParam = {
         appId,
       }
-      if (context.locals.user) {
-        metadata.userId = context.locals.user.id
+      if (context.locals.auth().userId) {
+        metadata.userId = context.locals.auth().userId
       }
       const session = await stripe.checkout.sessions.create({
         line_items: [
