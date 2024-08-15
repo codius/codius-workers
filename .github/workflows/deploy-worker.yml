@@ -38,7 +38,7 @@ jobs:
           ref: ${{ github.event.inputs.commit }}
 
       - name: Check for pnpm-lock.yaml
-        id: check_pnpm_lock
+        id: check-pnpm-lock
         run: |
           directory=${{ inputs.directory }}
           file_path="${directory:+${directory}/}pnpm-lock.yaml"
@@ -48,13 +48,12 @@ jobs:
           fi
 
       - name: Setup Node.js
-        if: ${{ steps.check_pnpm_lock.outputs.setup_pnpm == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
       - name: Setup PNPM
-        if: ${{ steps.check_pnpm_lock.outputs.setup_pnpm == 'true' }}
+        if: ${{ steps.check-pnpm-lock.outputs.setup_pnpm == 'true' }}
         uses: pnpm/action-setup@v4
 
       - name: Pull go-toml Docker image
