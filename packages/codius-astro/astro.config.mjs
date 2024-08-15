@@ -1,6 +1,7 @@
 import cloudflare from "@astrojs/cloudflare"
 import react from "@astrojs/react"
 import tailwind from "@astrojs/tailwind"
+import clerk from "@clerk/astro"
 import { defineConfig } from "astro/config"
 import simpleStackQuery from "simple-stack-query"
 
@@ -17,6 +18,7 @@ export default defineConfig({
     },
   }),
   integrations: [
+    clerk(),
     react(),
     tailwind({
       applyBaseStyles: false,

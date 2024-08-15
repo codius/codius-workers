@@ -28,7 +28,7 @@ if (!app) {
   })
 }
 
-const userIsDeployer = Astro.locals.user?.id === app.deployer.id
+const userIsDeployer = Astro.locals.auth().userId === app.deployer.id
 
 if (app.status !== "deployed" && !userIsDeployer) {
   return new Response(null, {

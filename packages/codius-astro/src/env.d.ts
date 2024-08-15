@@ -1,5 +1,6 @@
 /// <reference path="../.astro/actions.d.ts" />
 /// <reference types="astro/client" />
+/// <reference types="@clerk/astro/env" />
 type D1Database = import("@cloudflare/workers-types").D1Database
 type DurableObjectNamespace =
   import("@cloudflare/workers-types").DurableObjectNamespace
@@ -19,6 +20,8 @@ type ENV = {
   GITHUB_WEBHOOK_SECRET: string
   STRIPE_TOPUP_PRICE_ID: string
   STRIPE_SECRET_KEY: string
+  PUBLIC_CLERK_PUBLISHABLE_KEY: string
+  CLERK_SECRET_KEY: string
   BILLING_DURABLE_OBJECT: DurableObjectNamespace<BillingDurableObject>
   DB: D1Database
 }
