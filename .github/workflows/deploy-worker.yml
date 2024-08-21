@@ -23,6 +23,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    outputs:
+      WORKER_SCRIPT: ${{ steps.get-script.outputs.WORKER_SCRIPT }}
 
     env:
       wranglerVersion: "3.68.0"
@@ -107,6 +109,11 @@ jobs:
 
           echo "WORKER_SCRIPT=${worker_script}" >> "$GITHUB_OUTPUT"
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: worker_script
+          path: ${{ steps.get-script.outputs.WORKER_SCRIPT }}
+
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
@@ -115,3 +122,23 @@ jobs:
           wranglerVersion: ${{ env.wranglerVersion }}
           workingDirectory: ${{ github.event.inputs.directory }}
           command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }} ${{ steps.get-script.outputs.WORKER_SCRIPT }}
+
+  attest:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Download worker script
+        uses: actions/download-artifact@v4
+        with:
+          name: worker_script
+          path: ./
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: ${{ needs.deploy.outputs.WORKER_SCRIPT }}
