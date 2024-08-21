@@ -67,13 +67,6 @@ jobs:
           jq 'del(.d1_databases)' | \
           docker run -i ghcr.io/pelletier/go-toml:v2 jsontoml > wrangler.toml
 
-      - name: Extract wrangler.toml [main]
-        id: wrangler-main
-        working-directory: ${{ github.event.inputs.directory }}
-        run: |
-          wrangler_main=$(docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml | jq -r '.main')
-          echo "WRANGLER_MAIN=${wrangler_main}" >> "$GITHUB_OUTPUT"
-
       - name: Check for [build] field in wrangler.toml
         id: check-custom-build
         working-directory: ${{ github.event.inputs.directory }}
@@ -86,7 +79,33 @@ jobs:
         with:
           wranglerVersion: ${{ env.wranglerVersion }}
           workingDirectory: ${{ github.event.inputs.directory }}
-          command: deploy --dry-run ${{ steps.check-custom-build.outputs.CUSTOM_BUILD == 'false' && format('--outdir={0}', env.outDir) || '' }} --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
+          command: deploy --dry-run ${{ env.OUT_DIR }} --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
+        env:
+          OUT_DIR: ${{ steps.check-custom-build.outputs.CUSTOM_BUILD == 'false' && format('--outdir={0}', env.outDir) || '' }}
+
+      - name: Determine worker entry script
+        id: get-script
+        working-directory: ${{ github.event.inputs.directory }}
+        run: |
+          wrangler_main=$(docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml | jq -r '.main')
+          echo "wrangler_main: $wrangler_main"
+
+          if [ "${{ steps.check-custom-build.outputs.CUSTOM_BUILD }}" == "false" ]; then
+            trimmed_wrangler_main=$(echo ${wrangler_main} | sed 's|^\./||')
+            echo "Custom build is false; looking for the bundled script in ${outDir} containing // ${trimmed_wrangler_main}"
+            worker_script=$(grep -rl "// ${trimmed_wrangler_main}" "${{ env.outDir }}" | head -n 1)
+            echo "Found worker_script: $worker_script"
+          else
+            echo "Custom build is true; using the wrangler.toml main entry..."
+            worker_script="${wrangler_main}"
+          fi
+
+          if [ -z "$worker_script" ]; then
+            echo "Error: WORKER_SCRIPT is empty!"
+            exit 1
+          fi
+
+          echo "WORKER_SCRIPT=${worker_script}" >> "$GITHUB_OUTPUT"
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
@@ -95,4 +114,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: ${{ env.wranglerVersion }}
           workingDirectory: ${{ github.event.inputs.directory }}
-          command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }} ${{ steps.check-custom-build.outputs.CUSTOM_BUILD == 'false' && format('{0}/', env.outDir) || '' }}${{ steps.wrangler-main.outputs.WRANGLER_MAIN }}
+          command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }} ${{ steps.get-script.outputs.WORKER_SCRIPT }}
