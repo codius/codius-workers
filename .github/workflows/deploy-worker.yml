@@ -148,7 +148,7 @@ jobs:
         id: update-predicate
         run: |
           uri="git+https://github.com/${{ github.event.inputs.repo }}@refs/heads/${{ github.event.inputs.branch }}"
-          resolved_dependencies=$(jq -n --arg uri "$uri" --arg commit "${{ github.event.inputs.commit }}" '[{"uri": $uri, "digest": {"gitCommit": $commit}}]')
+          resolved_dependencies=$(jq -n --arg uri "$uri" --arg commit "${{ github.event.inputs.commit }}" --arg path "${{ github.event.inputs.directory }}" '[{"uri": $uri, "digest": {"gitCommit": $commit}, "path": $path}]')
           predicate=$(echo '${{ steps.generate-build-provenance-predicate.outputs.predicate }}' | jq -c '.buildDefinition.externalParameters.resolvedDependencies = $resolved_dependencies' --argjson resolved_dependencies "$resolved_dependencies")
           echo "predicate=$predicate" >> $GITHUB_OUTPUT
 
