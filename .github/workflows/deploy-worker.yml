@@ -140,7 +140,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.inputs.appId }}
-          path: ./
 
       - uses: actions/attest-build-provenance/predicate@d58ddf9f241cd8163408934540d01c3335864d64 # predicate@1.1.2
         id: generate-build-provenance-predicate
