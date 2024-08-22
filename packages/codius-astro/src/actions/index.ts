@@ -86,6 +86,7 @@ export const server = {
           owner,
           repo,
           commitHash: commit.sha,
+          branch,
           directory,
           dispatchNamespace: context.locals.runtime.env.CF_DISPATCH_NAMESPACE,
         })

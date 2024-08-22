@@ -13,6 +13,9 @@ on:
       commit:
         description: "Git commit hash"
         required: true
+      branch:
+        description: "Git branch"
+        required: true
       directory:
         description: "Directory to deploy"
         required: false
@@ -138,7 +141,19 @@ jobs:
           name: worker_script
           path: ./
 
-      - name: Attest Build Provenance
-        uses: actions/attest-build-provenance@v1
+      - uses: actions/attest-build-provenance/predicate@d58ddf9f241cd8163408934540d01c3335864d64 # predicate@1.1.2
+        id: generate-build-provenance-predicate
+
+      - name: Update Predicate JSON
+        id: update-predicate
+        run: |
+          uri="git+https://github.com/${{ github.event.inputs.repo }}@refs/heads/${{ github.event.inputs.branch }}"
+          predicate=$(echo '${{ steps.generate-build-provenance-predicate.outputs.predicate }}' | jq -c ".buildDefinition.resolvedDependencies = [{\"uri\": \"$uri\", \"digest\": {\"gitCommit\": \"${{ github.event.inputs.commit }}\"}}]")
+          echo "predicate=$predicate" >> $GITHUB_OUTPUT
+
+      - uses: actions/attest@2da0b136720d14f01f4dbeeafd1d5a4d76cbe21d # v1.4.0
+        id: attest
         with:
           subject-path: ${{ needs.deploy.outputs.WORKER_SCRIPT }}
+          predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
+          predicate: ${{ steps.update-predicate.outputs.predicate }}

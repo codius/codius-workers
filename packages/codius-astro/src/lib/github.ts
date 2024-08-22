@@ -20,6 +20,7 @@ export type WorkflowOptions = {
   owner: string
   repo: string
   commitHash: string
+  branch: string
   directory?: string
   dispatchNamespace: string
 }
@@ -31,6 +32,7 @@ export const triggerWorkflow = async (
     owner,
     repo,
     commitHash,
+    branch,
     directory,
     dispatchNamespace,
   }: WorkflowOptions,
@@ -48,6 +50,7 @@ export const triggerWorkflow = async (
       appId,
       repo: `${owner}/${repo}`,
       commit: commitHash,
+      branch,
       directory,
       dispatchNamespace,
     },
