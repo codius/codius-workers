@@ -115,7 +115,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: worker_script
+          name: ${{ github.event.inputs.appId }}
           path: ${{ github.event.inputs.directory }}/${{ steps.get-script.outputs.WORKER_SCRIPT }}
 
       - name: Deploy Worker
@@ -139,7 +139,7 @@ jobs:
       - name: Download worker script
         uses: actions/download-artifact@v4
         with:
-          name: worker_script
+          name: ${{ github.event.inputs.appId }}
           path: ./
 
       - uses: actions/attest-build-provenance/predicate@d58ddf9f241cd8163408934540d01c3335864d64 # predicate@1.1.2
