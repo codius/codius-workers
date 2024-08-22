@@ -19,6 +19,7 @@ on:
       directory:
         description: "Directory to deploy"
         required: false
+        default: "."
 
 permissions:
   contents: read
@@ -115,7 +116,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: worker_script
-          path: ${{ steps.get-script.outputs.WORKER_SCRIPT }}
+          path: ${{ github.event.inputs.directory }}/${{ steps.get-script.outputs.WORKER_SCRIPT }}
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
@@ -155,6 +156,6 @@ jobs:
       - uses: actions/attest@2da0b136720d14f01f4dbeeafd1d5a4d76cbe21d # v1.4.0
         id: attest
         with:
-          subject-path: ${{ needs.deploy.outputs.WORKER_SCRIPT }}
+          subject-path: ${{ github.event.inputs.directory }}/${{ needs.deploy.outputs.WORKER_SCRIPT }}
           predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
           predicate: ${{ steps.update-predicate.outputs.predicate }}
