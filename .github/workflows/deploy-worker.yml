@@ -19,6 +19,7 @@ on:
       directory:
         description: "Directory to deploy"
         required: false
+        default: "."
 
 permissions:
   contents: read
@@ -27,7 +28,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     outputs:
-      WORKER_SCRIPT: ${{ steps.get-script.outputs.WORKER_SCRIPT }}
+      WORKER_SCRIPT: ${{ steps.get-script.outputs.WORKER_SCRIPT_FILENAME }}
 
     env:
       wranglerVersion: "3.68.0"
@@ -111,11 +112,12 @@ jobs:
           fi
 
           echo "WORKER_SCRIPT=${worker_script}" >> "$GITHUB_OUTPUT"
+          echo "WORKER_SCRIPT_FILENAME=$(basename $worker_script)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: worker_script
-          path: ${{ steps.get-script.outputs.WORKER_SCRIPT }}
+          name: ${{ github.event.inputs.appId }}
+          path: ${{ github.event.inputs.directory }}/${{ steps.get-script.outputs.WORKER_SCRIPT }}
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
@@ -138,8 +140,7 @@ jobs:
       - name: Download worker script
         uses: actions/download-artifact@v4
         with:
-          name: worker_script
-          path: ./
+          name: ${{ github.event.inputs.appId }}
 
       - uses: actions/attest-build-provenance/predicate@d58ddf9f241cd8163408934540d01c3335864d64 # predicate@1.1.2
         id: generate-build-provenance-predicate
@@ -148,7 +149,7 @@ jobs:
         id: update-predicate
         run: |
           uri="git+https://github.com/${{ github.event.inputs.repo }}@refs/heads/${{ github.event.inputs.branch }}"
-          resolved_dependencies=$(jq -n --arg uri "$uri" --arg commit "${{ github.event.inputs.commit }}" '[{"uri": $uri, "digest": {"gitCommit": $commit}}]')
+          resolved_dependencies=$(jq -n --arg uri "$uri" --arg commit "${{ github.event.inputs.commit }}" --arg path "${{ github.event.inputs.directory }}" '[{"uri": $uri, "digest": {"gitCommit": $commit}, "path": $path}]')
           predicate=$(echo '${{ steps.generate-build-provenance-predicate.outputs.predicate }}' | jq -c '.buildDefinition.externalParameters.resolvedDependencies = $resolved_dependencies' --argjson resolved_dependencies "$resolved_dependencies")
           echo "predicate=$predicate" >> $GITHUB_OUTPUT
 
