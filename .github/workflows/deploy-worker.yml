@@ -28,7 +28,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     outputs:
-      WORKER_SCRIPT: ${{ steps.get-script.outputs.WORKER_SCRIPT }}
+      WORKER_SCRIPT: ${{ steps.get-script.outputs.WORKER_SCRIPT_FILENAME }}
 
     env:
       wranglerVersion: "3.68.0"
@@ -112,6 +112,7 @@ jobs:
           fi
 
           echo "WORKER_SCRIPT=${worker_script}" >> "$GITHUB_OUTPUT"
+          echo "WORKER_SCRIPT_FILENAME=$(basename $worker_script)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -155,6 +156,6 @@ jobs:
       - uses: actions/attest@2da0b136720d14f01f4dbeeafd1d5a4d76cbe21d # v1.4.0
         id: attest
         with:
-          subject-path: ${{ github.event.inputs.directory }}/${{ needs.deploy.outputs.WORKER_SCRIPT }}
+          subject-path: ${{ needs.deploy.outputs.WORKER_SCRIPT }}
           predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
           predicate: ${{ steps.update-predicate.outputs.predicate }}
