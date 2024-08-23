@@ -28,7 +28,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     outputs:
-      WORKER_SCRIPT: ${{ steps.get-script.outputs.WORKER_SCRIPT_FILENAME }}
+      worker-script: ${{ steps.get-script.outputs.worker-script-filename }}
 
     env:
       wranglerVersion: "3.68.0"
@@ -50,7 +50,7 @@ jobs:
           file_path="${directory:+${directory}/}pnpm-lock.yaml"
           if [ -f "$file_path" ]; then
             echo "PNPM lock file found"
-            echo "::set-output name=setup_pnpm::true"
+            echo "setup_pnpm=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup Node.js
@@ -77,8 +77,8 @@ jobs:
         id: check-custom-build
         working-directory: ${{ github.event.inputs.directory }}
         run: |
-          CUSTOM_BUILD=$(docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml | jq -e '.build' > /dev/null && echo "true" || echo "false")
-          echo "CUSTOM_BUILD=${CUSTOM_BUILD}" >> "$GITHUB_OUTPUT"
+          custom_build=$(docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml | jq -e '.build' > /dev/null && echo "true" || echo "false")
+          echo "custom-build=${custom_build}" >> "$GITHUB_OUTPUT"
 
       - name: Bundle/Build Worker
         uses: cloudflare/wrangler-action@v3
@@ -87,7 +87,7 @@ jobs:
           workingDirectory: ${{ github.event.inputs.directory }}
           command: deploy --dry-run ${{ env.OUT_DIR }} --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }}
         env:
-          OUT_DIR: ${{ steps.check-custom-build.outputs.CUSTOM_BUILD == 'false' && format('--outdir={0}', env.outDir) || '' }}
+          OUT_DIR: ${{ steps.check-custom-build.outputs.custom-build == 'false' && format('--outdir={0}', env.outDir) || '' }}
 
       - name: Determine worker entry script
         id: get-script
@@ -96,7 +96,7 @@ jobs:
           wrangler_main=$(docker run -i ghcr.io/pelletier/go-toml:v2 tomljson < wrangler.toml | jq -r '.main')
           echo "wrangler_main: $wrangler_main"
 
-          if [ "${{ steps.check-custom-build.outputs.CUSTOM_BUILD }}" == "false" ]; then
+          if [ "${{ steps.check-custom-build.outputs.custom-build }}" == "false" ]; then
             trimmed_wrangler_main=$(echo ${wrangler_main} | sed 's|^\./||')
             echo "Custom build is false; looking for the bundled script in ${outDir} containing // ${trimmed_wrangler_main}"
             worker_script=$(grep -rl "// ${trimmed_wrangler_main}" "${{ env.outDir }}" | head -n 1)
@@ -107,17 +107,17 @@ jobs:
           fi
 
           if [ -z "$worker_script" ]; then
-            echo "Error: WORKER_SCRIPT is empty!"
+            echo "Error: Unable to find worker script!"
             exit 1
           fi
 
-          echo "WORKER_SCRIPT=${worker_script}" >> "$GITHUB_OUTPUT"
-          echo "WORKER_SCRIPT_FILENAME=$(basename $worker_script)" >> "$GITHUB_OUTPUT"
+          echo "worker-script=${worker_script}" >> "$GITHUB_OUTPUT"
+          echo "worker-script-filename=$(basename $worker_script)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.inputs.appId }}
-          path: ${{ github.event.inputs.directory }}/${{ steps.get-script.outputs.WORKER_SCRIPT }}
+          path: ${{ github.event.inputs.directory }}/${{ steps.get-script.outputs.worker-script }}
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
@@ -126,7 +126,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: ${{ env.wranglerVersion }}
           workingDirectory: ${{ github.event.inputs.directory }}
-          command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }} ${{ steps.get-script.outputs.WORKER_SCRIPT }}
+          command: deploy --no-bundle --name=${{ github.event.inputs.appId }} --dispatch-namespace ${{ github.event.inputs.dispatchNamespace }} ${{ steps.get-script.outputs.worker-script }}
 
   attest:
     needs: deploy
@@ -156,6 +156,6 @@ jobs:
       - uses: actions/attest@2da0b136720d14f01f4dbeeafd1d5a4d76cbe21d # v1.4.0
         id: attest
         with:
-          subject-path: ${{ needs.deploy.outputs.WORKER_SCRIPT }}
+          subject-path: ${{ needs.deploy.outputs.worker-script }}
           predicate-type: ${{ steps.generate-build-provenance-predicate.outputs.predicate-type }}
           predicate: ${{ steps.update-predicate.outputs.predicate }}
