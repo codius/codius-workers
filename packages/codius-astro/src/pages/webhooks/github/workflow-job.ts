@@ -8,34 +8,43 @@ export async function POST(context: APIContext): Promise<Response> {
     secret: context.locals.runtime.env.GITHUB_WEBHOOK_SECRET,
   })
 
-  webhooks.on("workflow_job.in_progress", async (data) => {
-    // steps[1] isn't consistently included in workflow_job.in_progress
-    // so we can't reliable get appId + jobId + runId until workflow_job.completed
-    if (
-      data.payload.workflow_job.workflow_name === WORKFLOW_NAME &&
-      data.payload.workflow_job.steps[1]
-    ) {
-      const appId = data.payload.workflow_job.steps[1].name
-
-      await context.locals.db.apps.updateGitHubWorkflowJob(appId, {
-        githubWorkflowJobId: data.payload.workflow_job.id,
-        githubWorkflowRunId: data.payload.workflow_job.run_id,
-      })
-    }
+  webhooks.on("workflow_dispatch", async (data) => {
+    console.log(JSON.stringify(data, null, 2))
+    // const appId = data.payload.inputs.appId
+    // await context.locals.db.apps.updateGitHubWorkflowJob(appId, {
+    //   githubWorkflowRunId: data.payload.workflow.id,
+    // })
   })
 
-  webhooks.on("workflow_job.completed", async (data) => {
-    if (data.payload.workflow_job.workflow_name === WORKFLOW_NAME) {
-      const appId = data.payload.workflow_job.steps[1].name
-      await context.locals.db.apps.updateCompletedGitHubWorkflowJob(appId, {
-        githubWorkflowJobId: data.payload.workflow_job.id,
-        githubWorkflowRunId: data.payload.workflow_job.run_id,
-        status:
-          data.payload.workflow_job.conclusion === "success"
-            ? "deployed"
-            : "failed",
-      })
-    }
+  webhooks.on("workflow_run.in_progress", async (data) => {
+    console.log(JSON.stringify(data, null, 2))
+    //   data.payload.workflow.display_title
+    //   // steps[1] isn't consistently included in workflow_job.in_progress
+    //   // so we can't reliable get appId + jobId + runId until workflow_job.completed
+    //   if (
+    //     data.payload.workflow_run.name === WORKFLOW_NAME &&
+    //     data.payload.workflow_run.steps[1]
+    //   ) {
+    //     const appId = data.payload.workflow_job.steps[1].name
+
+    //     await context.locals.db.apps.updateGitHubWorkflowJob(appId, {
+    //       githubWorkflowRunId: data.payload.workflow_run.id,
+    //     })
+    //   }
+  })
+
+  webhooks.on("workflow_run.completed", async (data) => {
+    console.log(JSON.stringify(data, null, 2))
+    // if (data.payload.workflow_run.name === WORKFLOW_NAME) {
+    //   const appId = data.payload.workflow_run.steps[1].name
+    //   await context.locals.db.apps.updateCompletedGitHubWorkflowJob(appId, {
+    //     githubWorkflowRunId: data.payload.workflow_run.id,
+    //     status:
+    //       data.payload.workflow_run.conclusion === "success"
+    //         ? "deployed"
+    //         : "failed",
+    //   })
+    // }
   })
 
   try {
@@ -47,7 +56,7 @@ export async function POST(context: APIContext): Promise<Response> {
       return new Response("Missing required headers", { status: 400 })
     }
 
-    if (eventName !== "workflow_job") {
+    if (eventName !== "workflow_dispatch" && eventName !== "workflow_run") {
       return new Response("Invalid event name", { status: 400 })
     }
 

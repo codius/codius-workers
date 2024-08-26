@@ -55,6 +55,7 @@ export const apps = sqliteTable(
     status: text("status", { enum: ["deployed", "failed", "pending"] })
       .notNull()
       .default("pending"),
+    // TODO: remove
     githubWorkflowJobId: integer("github_workflow_job_id"),
     githubWorkflowRunId: integer("github_workflow_run_id"),
     createdAt: integer("created_at", { mode: "timestamp" })

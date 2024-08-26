@@ -41,7 +41,7 @@ export const triggerWorkflow = async (
   const octokit = new Octokit({
     auth,
   })
-  await octokit.rest.actions.createWorkflowDispatch({
+  const resp = await octokit.rest.actions.createWorkflowDispatch({
     workflow_id: "deploy-worker.yml",
     owner: "codius",
     repo: "codius-astro",
@@ -55,4 +55,5 @@ export const triggerWorkflow = async (
       dispatchNamespace,
     },
   })
+  console.log(resp)
 }
