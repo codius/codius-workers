@@ -78,11 +78,8 @@ if (app.status !== "deployed" && !userIsDeployer) {
                     {app.deletedAt ? "deleted" : app.status}
                   </Badge>
                 </CardField>
-                {app.githubWorkflowRunId && app.githubWorkflowJobId && (
-                  <ViewWorkflowButton
-                    workflowRunId={app.githubWorkflowRunId}
-                    workflowJobId={app.githubWorkflowJobId}
-                  />
+                {app.githubWorkflowRunId && (
+                  <ViewWorkflowButton workflowRunId={app.githubWorkflowRunId} />
                 )}
               </div>
             )

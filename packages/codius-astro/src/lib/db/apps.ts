@@ -19,7 +19,6 @@ type AppOptions = {
 }
 
 type GitHubWorkflow = {
-  githubWorkflowJobId: number
   githubWorkflowRunId: number
 }
 
@@ -70,12 +69,11 @@ export class Apps {
 
   async updateGitHubWorkflowJob(
     id: string,
-    { githubWorkflowJobId, githubWorkflowRunId }: GitHubWorkflow,
+    { githubWorkflowRunId }: GitHubWorkflow,
   ) {
     const [app] = await this.db
       .update(apps)
       .set({
-        githubWorkflowJobId,
         githubWorkflowRunId,
       })
       .where(eq(apps.id, id))
@@ -85,16 +83,11 @@ export class Apps {
 
   async updateCompletedGitHubWorkflowJob(
     id: string,
-    {
-      githubWorkflowJobId,
-      githubWorkflowRunId,
-      status,
-    }: CompletedGitHubWorkflow,
+    { githubWorkflowRunId, status }: CompletedGitHubWorkflow,
   ) {
     const [app] = await this.db
       .update(apps)
       .set({
-        githubWorkflowJobId,
         githubWorkflowRunId,
         status,
       })
