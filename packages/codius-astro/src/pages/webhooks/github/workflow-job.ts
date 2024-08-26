@@ -1,6 +1,7 @@
 import { Webhooks } from "@octokit/webhooks"
 import type { APIContext } from "astro"
 
+const WORKFLOW_JOB_NAME = "notify"
 const WORKFLOW_NAME = ".github/workflows/deploy-worker.yml"
 
 export async function POST(context: APIContext): Promise<Response> {
@@ -8,43 +9,37 @@ export async function POST(context: APIContext): Promise<Response> {
     secret: context.locals.runtime.env.GITHUB_WEBHOOK_SECRET,
   })
 
-  webhooks.on("workflow_dispatch", async (data) => {
-    console.log(JSON.stringify(data, null, 2))
-    // const appId = data.payload.inputs.appId
-    // await context.locals.db.apps.updateGitHubWorkflowJob(appId, {
-    //   githubWorkflowRunId: data.payload.workflow.id,
-    // })
-  })
+  webhooks.on("workflow_job.completed", async (data) => {
+    console.log(JSON.stringify(data.payload.workflow_job, null, 2))
+    if (
+      data.payload.workflow_job.workflow_name === WORKFLOW_NAME &&
+      data.payload.workflow_job.name === WORKFLOW_JOB_NAME
+    ) {
+      const appId = data.payload.workflow_job.steps[1].name
 
-  webhooks.on("workflow_run.in_progress", async (data) => {
-    console.log(JSON.stringify(data, null, 2))
-    //   data.payload.workflow.display_title
-    //   // steps[1] isn't consistently included in workflow_job.in_progress
-    //   // so we can't reliable get appId + jobId + runId until workflow_job.completed
-    //   if (
-    //     data.payload.workflow_run.name === WORKFLOW_NAME &&
-    //     data.payload.workflow_run.steps[1]
-    //   ) {
-    //     const appId = data.payload.workflow_job.steps[1].name
-
-    //     await context.locals.db.apps.updateGitHubWorkflowJob(appId, {
-    //       githubWorkflowRunId: data.payload.workflow_run.id,
-    //     })
-    //   }
+      await context.locals.db.workflowRuns.create({
+        appId,
+        runId: data.payload.workflow_job.run_id,
+      })
+    }
   })
 
   webhooks.on("workflow_run.completed", async (data) => {
     console.log(JSON.stringify(data, null, 2))
-    // if (data.payload.workflow_run.name === WORKFLOW_NAME) {
-    //   const appId = data.payload.workflow_run.steps[1].name
-    //   await context.locals.db.apps.updateCompletedGitHubWorkflowJob(appId, {
-    //     githubWorkflowRunId: data.payload.workflow_run.id,
-    //     status:
-    //       data.payload.workflow_run.conclusion === "success"
-    //         ? "deployed"
-    //         : "failed",
-    //   })
-    // }
+    if (data.payload.workflow_run.name === WORKFLOW_NAME) {
+      const workflowRun = await context.locals.db.workflowRuns.updateConclusion(
+        data.payload.workflow_run.id,
+        data.payload.workflow_run.conclusion,
+      )
+      // TODO: Replace apps.status column with drizzle virtual generated column
+      //       which currently can't reference relations (apps.workflowRun.conclusion)
+      await context.locals.db.apps.updateStatus(
+        workflowRun.appId,
+        data.payload.workflow_run.conclusion === "success"
+          ? "deployed"
+          : "failed",
+      )
+    }
   })
 
   try {
@@ -56,7 +51,7 @@ export async function POST(context: APIContext): Promise<Response> {
       return new Response("Missing required headers", { status: 400 })
     }
 
-    if (eventName !== "workflow_dispatch" && eventName !== "workflow_run") {
+    if (eventName !== "workflow_job" && eventName !== "workflow_run") {
       return new Response("Invalid event name", { status: 400 })
     }
 

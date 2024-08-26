@@ -18,14 +18,6 @@ type AppOptions = {
   userId: string
 }
 
-type GitHubWorkflow = {
-  githubWorkflowRunId: number
-}
-
-type CompletedGitHubWorkflow = GitHubWorkflow & {
-  status: (typeof apps.$inferSelect)["status"]
-}
-
 export class Apps {
   private db: DrizzleD1Database<typeof schema>
   constructor(d1: D1Database) {
@@ -59,36 +51,19 @@ export class Apps {
   }
 
   async getById(id: string) {
-    return this.db.query.apps.findFirst({
+    return await this.db.query.apps.findFirst({
       where: eq(apps.id, id),
       with: {
         deployer: true,
+        workflowRun: true,
       },
     })
   }
 
-  async updateGitHubWorkflowJob(
-    id: string,
-    { githubWorkflowRunId }: GitHubWorkflow,
-  ) {
+  async updateStatus(id: string, status: (typeof apps.$inferSelect)["status"]) {
     const [app] = await this.db
       .update(apps)
       .set({
-        githubWorkflowRunId,
-      })
-      .where(eq(apps.id, id))
-      .returning()
-    return app
-  }
-
-  async updateCompletedGitHubWorkflowJob(
-    id: string,
-    { githubWorkflowRunId, status }: CompletedGitHubWorkflow,
-  ) {
-    const [app] = await this.db
-      .update(apps)
-      .set({
-        githubWorkflowRunId,
         status,
       })
       .where(eq(apps.id, id))

@@ -52,11 +52,13 @@ export const apps = sqliteTable(
     branch: text("branch").notNull(),
     commitHash: text("commit_hash").notNull(),
     directory: text("directory").notNull().default(""),
+    // TODO: remove
     status: text("status", { enum: ["deployed", "failed", "pending"] })
       .notNull()
       .default("pending"),
     // TODO: remove
     githubWorkflowJobId: integer("github_workflow_job_id"),
+    // TODO: remove
     githubWorkflowRunId: integer("github_workflow_run_id"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()
@@ -85,6 +87,10 @@ export const appsRelations = relations(apps, ({ one }) => ({
     fields: [apps.userId],
     references: [users.id],
   }),
+  workflowRun: one(workflowRuns, {
+    fields: [apps.id],
+    references: [workflowRuns.appId],
+  }),
 }))
 
 export const payments = sqliteTable("payments", {
@@ -105,3 +111,39 @@ export const payments = sqliteTable("payments", {
     .default(sql`(unixepoch())`)
     .$onUpdate(() => sql`CURRENT_TIMESTAMP`),
 })
+
+export const workflowRuns = sqliteTable(
+  "workflow_runs",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    appId: text("app_id")
+      .notNull()
+      .references(() => apps.id),
+    runId: integer("run_id").notNull(),
+    conclusion: text("conclusion", {
+      enum: [
+        "cancelled",
+        "success",
+        "failure",
+        "neutral",
+        "skipped",
+        "action_required",
+        "stale",
+        "timed_out",
+      ],
+    }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`)
+      .$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+  },
+  (t) => ({
+    appIdIdx: index("idx_workflow_runs_app_id").on(t.appId),
+    runIdIdx: index("idx_workflow_runs_run_id").on(t.runId),
+  }),
+)
