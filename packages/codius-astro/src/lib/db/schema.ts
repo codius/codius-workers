@@ -55,7 +55,6 @@ export const apps = sqliteTable(
     status: text("status", { enum: ["deployed", "failed", "pending"] })
       .notNull()
       .default("pending"),
-    githubWorkflowJobId: integer("github_workflow_job_id"),
     githubWorkflowRunId: integer("github_workflow_run_id"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()
@@ -76,6 +75,9 @@ export const apps = sqliteTable(
       t.deletedAt,
     ),
     userIdIdx: index("idx_apps_user_id").on(t.userId),
+    githubWorkflowRunIdIdx: index("idx_apps_github_workflow_run_id").on(
+      t.githubWorkflowRunId,
+    ),
   }),
 )
 

@@ -5,13 +5,12 @@ import { scope } from "simple:scope"
 
 type Props = {
   workflowRunId: number
-  workflowJobId: number
 }
 
-const { workflowRunId, workflowJobId } = Astro.props
+const { workflowRunId } = Astro.props
 ---
 
-<RootElement data={{ workflowRunId, workflowJobId }}>
+<RootElement data={{ workflowRunId }}>
   <Button data-target={scope("view-workflow-btn")}>
     <FiGithub className="mr-2" />
     View Workflow
@@ -23,7 +22,7 @@ const { workflowRunId, workflowJobId } = Astro.props
     async ($, ctx) => {
       $("view-workflow-btn").addEventListener("click", async () => {
         window.open(
-          `https://github.com/codius/codius-astro/actions/runs/${ctx.data.workflowRunId}/job/${ctx.data.workflowJobId}`,
+          `https://github.com/codius/codius-astro/actions/runs/${ctx.data.workflowRunId}`,
           "_blank",
           "noopener,noreferrer",
         )

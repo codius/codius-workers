@@ -18,12 +18,8 @@ type AppOptions = {
   userId: string
 }
 
-type GitHubWorkflow = {
-  githubWorkflowJobId: number
+type UpdateStatusOptions = {
   githubWorkflowRunId: number
-}
-
-type CompletedGitHubWorkflow = GitHubWorkflow & {
   status: (typeof apps.$inferSelect)["status"]
 }
 
@@ -68,14 +64,10 @@ export class Apps {
     })
   }
 
-  async updateGitHubWorkflowJob(
-    id: string,
-    { githubWorkflowJobId, githubWorkflowRunId }: GitHubWorkflow,
-  ) {
+  async updateGitHubWorkflowRunId(id: string, githubWorkflowRunId: number) {
     const [app] = await this.db
       .update(apps)
       .set({
-        githubWorkflowJobId,
         githubWorkflowRunId,
       })
       .where(eq(apps.id, id))
@@ -83,22 +75,13 @@ export class Apps {
     return app
   }
 
-  async updateCompletedGitHubWorkflowJob(
-    id: string,
-    {
-      githubWorkflowJobId,
-      githubWorkflowRunId,
-      status,
-    }: CompletedGitHubWorkflow,
-  ) {
+  async updateStatus({ githubWorkflowRunId, status }: UpdateStatusOptions) {
     const [app] = await this.db
       .update(apps)
       .set({
-        githubWorkflowJobId,
-        githubWorkflowRunId,
         status,
       })
-      .where(eq(apps.id, id))
+      .where(eq(apps.githubWorkflowRunId, githubWorkflowRunId))
       .returning()
     return app
   }

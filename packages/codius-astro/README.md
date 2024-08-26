@@ -25,7 +25,7 @@ pnpm --filter codius-astro d1 migrations apply <your-d1-db-name> --remote
 > **Note:** Rollback local migrations by deleting the state files with the following command:
 >
 > ```bash
-> rm .wrangler/state/v3/d1/miniflare-D1DatabaseObject/*
+> rm packages/codius-astro/.wrangler/state/v3/d1/miniflare-D1DatabaseObject/*
 > ```
 
 ### Environment Variables
