@@ -7,9 +7,6 @@ import simpleStackQuery from "simple-stack-query"
 // https://astro.build/config
 export default defineConfig({
   output: "server",
-  experimental: {
-    actions: true,
-  },
   adapter: cloudflare({
     platformProxy: {
       enabled: true,
