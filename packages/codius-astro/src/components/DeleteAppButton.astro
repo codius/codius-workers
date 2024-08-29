@@ -25,7 +25,7 @@ const { appId } = Astro.props
       $<HTMLButtonElement>("delete-btn").disabled = true
       $("trash-icon").classList.add("animate-spin")
       try {
-        await actions.deleteApp.orThrow({ id: ctx.data.appId })
+        await actions.app.delete.orThrow({ id: ctx.data.appId })
         window.location.href = "/apps"
       } catch (error) {
         console.error("Failed to delete app:", error)

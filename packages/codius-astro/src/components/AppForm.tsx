@@ -26,7 +26,7 @@ export function AppForm() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    const { error } = await actions.deployApp(formData)
+    const { error } = await actions.app.create(formData)
     if (error) {
       if (isInputError(error)) {
         setFieldErrors(error.fields)
@@ -40,7 +40,7 @@ export function AppForm() {
   }
 
   return (
-    <form method="POST" action={actions.deployApp} onSubmit={onSubmit}>
+    <form method="POST" action={actions.app.create} onSubmit={onSubmit}>
       <Label
         className={fieldErrors.repoUrl ? "text-destructive" : undefined}
         htmlFor="repoUrl"

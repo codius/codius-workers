@@ -25,7 +25,7 @@ const { appId, disabled } = Astro.props
     $("top-up-balance-btn").addEventListener("click", async () => {
       $<HTMLButtonElement>("top-up-balance-btn").disabled = true
       try {
-        const sessionUrl = await actions.createCheckoutSession.orThrow({
+        const sessionUrl = await actions.checkoutSession.create.orThrow({
           appId: ctx.data.appId,
         })
         window.location.href = sessionUrl
