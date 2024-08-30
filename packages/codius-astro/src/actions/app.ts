@@ -91,7 +91,7 @@ export const app = {
           dispatchNamespace: context.locals.runtime.env.CF_DISPATCH_NAMESPACE,
         })
 
-        return { success: true }
+        return { appId: app.id }
       } catch (e) {
         console.error(e)
 
