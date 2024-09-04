@@ -44,10 +44,10 @@ if (app.status !== "deployed" && !userIsDeployer) {
       <CardHeader>
         <CardTitle>
           <a
-            href={`https://${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}
+            href={`https://${app.id}.${Astro.locals.runtime.env.DISPATCHER_HOSTNAME}`}
             target="_blank"
             rel="noopener noreferrer"
-            >{`${app.id}.${Astro.locals.runtime.env.DISPATHER_HOSTNAME}`}</a
+            >{`${app.id}.${Astro.locals.runtime.env.DISPATCHER_HOSTNAME}`}</a
           >
         </CardTitle>
         <CardDescription
