@@ -99,9 +99,9 @@ if (app.status !== "deployed" && !userIsDeployer) {
                 </a>
               </CardField>
               <CardField
-                label="Branch (at time of deploy)"
-                content={app.branch}
-                link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.branch}`}
+                label="Git Ref (at time of deploy)"
+                content={app.gitRef}
+                link={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.gitRef}`}
               />
               <CardField
                 label="Commit"

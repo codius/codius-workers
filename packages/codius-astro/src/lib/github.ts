@@ -3,16 +3,31 @@ import { Octokit } from "@octokit/rest"
 export type CommitOptions = {
   owner: string
   repo: string
-  branch: string
+  ref: string
 }
-export const getCommit = async ({ owner, repo, branch }: CommitOptions) => {
+export const getCommit = async ({ owner, repo, ref }: CommitOptions) => {
   const octokit = new Octokit()
-  const { data } = await octokit.rest.repos.getBranch({
+  const { data } = await octokit.rest.repos.getCommit({
     owner,
     repo,
-    branch,
+    ref,
   })
-  return data.commit
+  return data
+}
+
+export const getDefaultBranch = async ({
+  owner,
+  repo,
+}: {
+  owner: string
+  repo: string
+}) => {
+  const octokit = new Octokit()
+  const { data } = await octokit.rest.repos.get({
+    owner,
+    repo,
+  })
+  return data.default_branch
 }
 
 export type WorkflowOptions = {
@@ -20,7 +35,7 @@ export type WorkflowOptions = {
   owner: string
   repo: string
   commitHash: string
-  branch: string
+  gitRef: string
   directory?: string
   dispatchNamespace: string
 }
@@ -32,7 +47,7 @@ export const triggerWorkflow = async (
     owner,
     repo,
     commitHash,
-    branch,
+    gitRef,
     directory,
     dispatchNamespace,
   }: WorkflowOptions,
@@ -50,7 +65,7 @@ export const triggerWorkflow = async (
       appId,
       repo: `${owner}/${repo}`,
       commit: commitHash,
-      branch,
+      ref: gitRef,
       directory,
       dispatchNamespace,
     },

@@ -3,15 +3,7 @@ import * as schema from "./schema"
 import { eq, and, isNull, desc } from "drizzle-orm"
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
-// type NewApp = typeof apps.$inferInsert
-type CreateAppOptions = {
-  userId: string
-  githubOwner: string
-  repo: string
-  branch: string
-  commitHash: string
-  directory?: string
-}
+type CreateAppOptions = typeof apps.$inferInsert
 
 type AppOptions = {
   id: string

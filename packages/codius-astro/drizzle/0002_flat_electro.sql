@@ -1,0 +1,1 @@
+ALTER TABLE `apps` RENAME COLUMN `branch` TO `git_ref`;
