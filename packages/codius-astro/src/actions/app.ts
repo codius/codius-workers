@@ -1,4 +1,4 @@
-import { getCommit, triggerWorkflow } from "@/lib/github"
+import { getCommit, getDefaultBranch, triggerWorkflow } from "@/lib/github"
 import { RequestError } from "@octokit/request-error"
 import { ActionError, defineAction } from "astro:actions"
 import { z } from "astro:schema"
@@ -45,39 +45,56 @@ export const app = {
   create: defineAction({
     accept: "form",
     input: z.object({
-      repoUrl: z
+      githubUrl: z
         .string()
         .min(1)
         .refine(
-          (data) => /^https:\/\/github\.com\/[^\/]+\/[^\/]+$/.test(data),
+          (data) =>
+            /^https:\/\/github\.com\/[^\/]+\/[^\/]+(\/tree\/[^\/]+(\/.*)?)?$/.test(
+              data,
+            ),
           {
             message:
-              "Repo must be a valid GitHub URL in the format 'https://github.com/username/repository'.",
+              "URL must be a valid GitHub URL in the format 'https://github.com/username/repository', optionally with '/tree/<ref>/<path>'.",
           },
         ),
-      branch: z.string().min(1),
-      directory: z.string().optional(),
     }),
     // https://github.com/withastro/roadmap/blob/actions/proposals/0046-actions.md#access-api-context
-    handler: async ({ repoUrl, branch, directory }, context) => {
+    handler: async ({ githubUrl }, context) => {
       if (!context.locals.user) {
         throw new ActionError({
           code: "UNAUTHORIZED",
         })
       }
       try {
-        const repoPath = new URL(repoUrl).pathname
-        const [owner, repo] = repoPath.substring(1).split("/")
+        const repoPath = new URL(githubUrl).pathname
+        const [owner, repo, ...pathSegments] = repoPath.substring(1).split("/")
 
-        // fetch the head commit for repo + branch from GitHub
-        const commit = await getCommit({ owner, repo, branch })
+        if (pathSegments.length === 1) {
+          console.warn("Unexpected pathSegments", pathSegments)
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: "Invalid repo URL.",
+          })
+        }
+        const gitRef = pathSegments.length
+          ? pathSegments[1]
+          : await getDefaultBranch({ owner, repo })
+        const directory =
+          pathSegments.length > 2 ? pathSegments.slice(2).join("/") : undefined
+
+        const { sha: commitHash } = await getCommit({
+          owner,
+          repo,
+          ref: gitRef,
+        })
 
         const app = await context.locals.db.apps.create({
           userId: context.locals.user.id,
           githubOwner: owner,
           repo,
-          branch,
-          commitHash: commit.sha,
+          gitRef,
+          commitHash,
           directory,
         })
 
@@ -85,8 +102,8 @@ export const app = {
           appId: app.id,
           owner,
           repo,
-          commitHash: commit.sha,
-          branch,
+          commitHash,
+          gitRef,
           directory,
           dispatchNamespace: context.locals.runtime.env.CF_DISPATCH_NAMESPACE,
         })

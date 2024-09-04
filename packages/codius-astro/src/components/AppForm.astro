@@ -9,42 +9,22 @@ const inputErrors = isInputError(result?.error) ? result.error.fields : {}
 ---
 
 <form method="POST" action={actions.app.create}>
-  <Label htmlFor="repoUrl"> GitHub Repository </Label>
+  <Label htmlFor="githubUrl"> GitHub Repository </Label>
   <Input
-    name="repoUrl"
+    name="githubUrl"
     type="text"
-    id="repoUrl"
+    id="githubUrl"
     required
-    pattern="^https:\/\/github\.com\/[^\/]+\/[^\/]+$"
-    title="URL must follow the format 'https://github.com/username/repository'"
+    pattern="^https:\/\/github\.com\/[^\/]+\/[^\/]+(\/tree\/[^\/]+(\/.*)?)?$"
+    title="URL must follow the format 'https://github.com/username/repository', optionally with '/tree/ref/path'."
   />
   <p class="text-sm text-muted-foreground">
-    The GitHub repository containing the Cloudflare Worker you want to deploy
+    The GitHub URL of the Cloudflare Worker you want to deploy
   </p>
   {
-    inputErrors.repoUrl && (
-      <p class="text-sm font-medium text-destructive">{inputErrors.repoUrl}</p>
-    )
-  }
-  <Label htmlFor="branch"> Branch </Label>
-  <Input type="text" id="branch" name="branch" defaultValue="main" required />
-  <p class="text-sm text-muted-foreground">
-    The GitHub repository branch you want to deploy
-  </p>
-  {
-    inputErrors.branch && (
-      <p class="text-sm font-medium text-destructive">{inputErrors.branch}</p>
-    )
-  }
-  <Label htmlFor="directory"> Directory </Label>
-  <Input type="text" id="directory" name="directory" />
-  <p class="text-sm text-muted-foreground">
-    The directory within the repository where the worker is located (optional)
-  </p>
-  {
-    inputErrors.directory && (
+    inputErrors.githubUrl && (
       <p class="text-sm font-medium text-destructive">
-        {inputErrors.directory}
+        {inputErrors.githubUrl}
       </p>
     )
   }

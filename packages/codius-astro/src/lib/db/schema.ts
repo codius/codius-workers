@@ -49,7 +49,7 @@ export const apps = sqliteTable(
       .references(() => users.id),
     githubOwner: text("github_owner").notNull(),
     repo: text("repo").notNull(),
-    branch: text("branch").notNull(),
+    gitRef: text("git_ref").notNull(),
     commitHash: text("commit_hash").notNull(),
     directory: text("directory").notNull().default(""),
     status: text("status", { enum: ["deployed", "failed", "pending"] })
