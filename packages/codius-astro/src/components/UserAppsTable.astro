@@ -1,5 +1,5 @@
 ---
-import { Badge } from "@/components/ui/badge"
+import AppStatusBadge from "@/components/AppStatusBadge.astro"
 import {
   Table,
   TableBody,
@@ -65,19 +65,7 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
           </TableCell>
 
           <TableCell>
-            <Badge
-              variant={
-                app.deletedAt
-                  ? "outline"
-                  : app.status === "deployed"
-                    ? "default"
-                    : app.status === "failed"
-                      ? "destructive"
-                      : "secondary"
-              }
-            >
-              {app.deletedAt ? "deleted" : app.status}
-            </Badge>
+            <AppStatusBadge app={app} />
           </TableCell>
           <TableCell>{new Date(app.createdAt).toUTCString()}</TableCell>
         </TableRow>

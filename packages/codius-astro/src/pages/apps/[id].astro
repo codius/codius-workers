@@ -1,5 +1,4 @@
 ---
-import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
@@ -9,6 +8,7 @@ import {
 } from "@/components/ui/card"
 import { FiGithub } from "react-icons/fi"
 import AppBilling from "@/components/AppBilling.astro"
+import AppStatusBadge from "@/components/AppStatusBadge.astro"
 import CardField from "@/components/CardField.astro"
 import DeleteAppButton from "@/components/DeleteAppButton.astro"
 import TopUpBalanceButton from "@/components/TopUpBalanceButton.astro"
@@ -62,21 +62,7 @@ if (app.status !== "deployed" && !userIsDeployer) {
             userIsDeployer && (
               <div class="flex flex-col items-start mb-4 gap-4">
                 <CardField label="Status">
-                  <Badge
-                    className="inline-flex"
-                    variant={
-                      app.deletedAt
-                        ? "outline"
-                        : app.status === "deployed"
-                          ? "default"
-                          : app.status === "failed"
-                            ? "destructive"
-                            : "secondary"
-                    }
-                    slot="content"
-                  >
-                    {app.deletedAt ? "deleted" : app.status}
-                  </Badge>
+                  <AppStatusBadge app={app} slot="content" />
                 </CardField>
                 {app.githubWorkflowRunId && (
                   <ViewWorkflowButton workflowRunId={app.githubWorkflowRunId} />

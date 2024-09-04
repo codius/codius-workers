@@ -1,0 +1,23 @@
+---
+import { Badge } from "@/components/ui/badge"
+import { type App } from "@/lib/db/apps"
+
+interface Props {
+  app: App
+}
+
+const { app } = Astro.props
+---
+
+<Badge
+  className="inline-flex"
+  variant={app.deletedAt
+    ? "outline"
+    : app.status === "deployed"
+      ? "default"
+      : app.status === "failed"
+        ? "destructive"
+        : "secondary"}
+>
+  {app.deletedAt ? "deleted" : app.status}
+</Badge>
