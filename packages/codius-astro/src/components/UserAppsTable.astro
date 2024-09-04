@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import AppRepoLink from "./AppRepoLink.astro"
 import type { User } from "lucia"
 
 interface Props {
@@ -24,8 +25,10 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
   <TableCaption>Your Apps</TableCaption>
   <TableHeader>
     <TableRow>
-      <TableHead>Repo</TableHead>
       <TableHead>URL</TableHead>
+      <TableHead>GitHub Repo</TableHead>
+      <TableHead>Git Ref</TableHead>
+      <TableHead>Directory</TableHead>
       <TableHead>Status</TableHead>
       <TableHead>Created At</TableHead>
     </TableRow>
@@ -43,16 +46,6 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
         <TableRow key={app.id} data-app-id={app.id} clickable>
           <TableCell>
             <a
-              href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {app.githubOwner}/{app.repo}
-            </a>
-          </TableCell>
-
-          <TableCell>
-            <a
               href={`https://${app.id}.${dispatcherHostname}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -60,6 +53,17 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
               {`https://${app.id}.${dispatcherHostname}`}
             </a>
           </TableCell>
+
+          <TableCell>
+            <AppRepoLink app={app} content={`${app.githubOwner}/${app.repo}`} />
+          </TableCell>
+          <TableCell>
+            <AppRepoLink app={app} content={app.gitRef} />
+          </TableCell>
+          <TableCell>
+            <AppRepoLink app={app} content={app.directory} />
+          </TableCell>
+
           <TableCell>
             <Badge
               variant={

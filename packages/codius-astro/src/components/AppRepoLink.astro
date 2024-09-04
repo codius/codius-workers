@@ -1,0 +1,18 @@
+---
+import { type App } from "@/lib/db/apps"
+
+interface Props {
+  app: App
+  content: string
+}
+
+const { app, content } = Astro.props
+---
+
+<a
+  href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  {content}
+</a>

@@ -3,6 +3,8 @@ import * as schema from "./schema"
 import { eq, and, isNull, desc } from "drizzle-orm"
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1"
 
+export type App = typeof apps.$inferSelect
+
 type CreateAppOptions = typeof apps.$inferInsert
 
 type AppOptions = {
