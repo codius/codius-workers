@@ -1,5 +1,6 @@
 ---
 import { type App } from "@/lib/db/apps"
+import { scope } from "simple:scope"
 
 interface Props {
   app: App
@@ -9,12 +10,27 @@ const { app } = Astro.props
 const appUrl = `${app.id}.${Astro.locals.runtime.env.DISPATCHER_HOSTNAME}`
 ---
 
-{
-  app.status === "deployed" ? (
-    <a href={`https://${appUrl}`} target="_blank" rel="noopener noreferrer">
-      {appUrl}
-    </a>
-  ) : (
-    <span>{appUrl}</span>
-  )
-}
+<RootElement>
+  {
+    app.status === "deployed" ? (
+      <a
+        href={`https://${appUrl}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-target={scope("app-link")}
+      >
+        {appUrl}
+      </a>
+    ) : (
+      <span>{appUrl}</span>
+    )
+  }
+</RootElement>
+
+<script>
+  RootElement.ready(($) => {
+    $.optional("app-link")?.addEventListener("click", (e) => {
+      e.stopPropagation()
+    })
+  })
+</script>

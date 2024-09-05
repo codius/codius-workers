@@ -12,6 +12,7 @@ import {
 import AppRepoLink from "./AppRepoLink.astro"
 import type { User } from "lucia"
 import AppUrl from "./AppUrl.astro"
+import { scope } from "simple:scope"
 
 interface Props {
   user: User
@@ -21,58 +22,73 @@ const { user } = Astro.props
 const apps = await Astro.locals.db.apps.getByUserId(user.id)
 ---
 
-<Table>
-  <TableCaption>Your Apps</TableCaption>
-  <TableHeader>
-    <TableRow>
-      <TableHead>URL</TableHead>
-      <TableHead>GitHub Repo</TableHead>
-      <TableHead>Git Ref</TableHead>
-      <TableHead>Directory</TableHead>
-      <TableHead>Status</TableHead>
-      <TableHead>Created At</TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    {
-      apps.length === 0 && (
-        <TableRow>
-          <TableCell className="text-center">No apps found</TableCell>
-        </TableRow>
-      )
-    }
-    {
-      apps.map((app) => (
-        <TableRow key={app.id} data-app-id={app.id} clickable>
-          <TableCell>
-            <AppUrl app={app} />
-          </TableCell>
+<RootElement>
+  <Table>
+    <TableCaption>Your Apps</TableCaption>
+    <TableHeader>
+      <TableRow>
+        <TableHead>URL</TableHead>
+        <TableHead>GitHub Repo</TableHead>
+        <TableHead>Git Ref</TableHead>
+        <TableHead>Directory</TableHead>
+        <TableHead>Status</TableHead>
+        <TableHead>Created At</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {
+        apps.length === 0 && (
+          <TableRow>
+            <TableCell className="text-center">No apps found</TableCell>
+          </TableRow>
+        )
+      }
+      {
+        apps.map((app) => (
+          <TableRow
+            data-target={scope("app-row")}
+            key={app.id}
+            data-app-id={app.id}
+            clickable
+          >
+            <TableCell>
+              <AppUrl app={app} />
+            </TableCell>
 
-          <TableCell>
-            <AppRepoLink app={app} content={`${app.githubOwner}/${app.repo}`} />
-          </TableCell>
-          <TableCell>
-            <AppRepoLink app={app} content={app.gitRef} />
-          </TableCell>
-          <TableCell>
-            <AppRepoLink app={app} content={app.directory} />
-          </TableCell>
+            <TableCell>
+              <AppRepoLink
+                app={app}
+                content={`${app.githubOwner}/${app.repo}`}
+              />
+            </TableCell>
+            <TableCell>
+              <AppRepoLink app={app} content={app.gitRef} />
+            </TableCell>
+            <TableCell>
+              <AppRepoLink app={app} content={app.directory} />
+            </TableCell>
 
-          <TableCell>
-            <AppStatusBadge app={app} />
-          </TableCell>
-          <TableCell>{new Date(app.createdAt).toUTCString()}</TableCell>
-        </TableRow>
-      ))
-    }
-  </TableBody>
-</Table>
+            <TableCell>
+              <AppStatusBadge app={app} />
+            </TableCell>
+            <TableCell>{new Date(app.createdAt).toUTCString()}</TableCell>
+          </TableRow>
+        ))
+      }
+    </TableBody>
+  </Table>
+</RootElement>
 
 <script>
-  const rows = document.querySelectorAll<HTMLTableRowElement>("tr[data-app-id]")
-  rows.forEach((row) => {
-    row.addEventListener("click", function () {
-      window.location.href = `/apps/${this.dataset.appId}`
-    })
+  RootElement.ready(($) => {
+    $.all<HTMLTableRowElement>("app-row").forEach((appRow) =>
+      appRow.addEventListener("click", () => {
+        const appId = appRow.getAttribute("data-app-id")
+        console.log({ appRow, appId })
+        if (appId) {
+          window.location.href = `/apps/${appId}`
+        }
+      }),
+    )
   })
 </script>
