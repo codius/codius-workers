@@ -60,7 +60,7 @@ export const triggerWorkflow = async (
     workflow_id: "deploy-worker.yml",
     owner: "codius",
     repo: "codius-astro",
-    ref: "main",
+    ref: "preview",
     inputs: {
       appId,
       repo: `${owner}/${repo}`,
