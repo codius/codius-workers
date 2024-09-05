@@ -11,13 +11,13 @@ import {
 } from "@/components/ui/table"
 import AppRepoLink from "./AppRepoLink.astro"
 import type { User } from "lucia"
+import AppUrl from "./AppUrl.astro"
 
 interface Props {
   user: User
-  dispatcherHostname: string
 }
 
-const { dispatcherHostname, user } = Astro.props
+const { user } = Astro.props
 const apps = await Astro.locals.db.apps.getByUserId(user.id)
 ---
 
@@ -45,13 +45,7 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
       apps.map((app) => (
         <TableRow key={app.id} data-app-id={app.id} clickable>
           <TableCell>
-            <a
-              href={`https://${app.id}.${dispatcherHostname}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {`https://${app.id}.${dispatcherHostname}`}
-            </a>
+            <AppUrl app={app} />
           </TableCell>
 
           <TableCell>

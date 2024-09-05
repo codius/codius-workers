@@ -1,0 +1,20 @@
+---
+import { type App } from "@/lib/db/apps"
+
+interface Props {
+  app: App
+}
+
+const { app } = Astro.props
+const appUrl = `${app.id}.${Astro.locals.runtime.env.DISPATCHER_HOSTNAME}`
+---
+
+{
+  app.status === "deployed" ? (
+    <a href={`https://${appUrl}`} target="_blank" rel="noopener noreferrer">
+      {appUrl}
+    </a>
+  ) : (
+    <span>{appUrl}</span>
+  )
+}

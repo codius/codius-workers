@@ -9,6 +9,7 @@ import {
 import { FiGithub } from "react-icons/fi"
 import AppBilling from "@/components/AppBilling.astro"
 import AppStatusBadge from "@/components/AppStatusBadge.astro"
+import AppUrl from "@/components/AppUrl.astro"
 import CardField from "@/components/CardField.astro"
 import DeleteAppButton from "@/components/DeleteAppButton.astro"
 import TopUpBalanceButton from "@/components/TopUpBalanceButton.astro"
@@ -43,12 +44,7 @@ if (app.status !== "deployed" && !userIsDeployer) {
     <Card>
       <CardHeader>
         <CardTitle>
-          <a
-            href={`https://${app.id}.${Astro.locals.runtime.env.DISPATCHER_HOSTNAME}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            >{`${app.id}.${Astro.locals.runtime.env.DISPATCHER_HOSTNAME}`}</a
-          >
+          <AppUrl app={app} />
         </CardTitle>
         <CardDescription
           >Deployed by <a
