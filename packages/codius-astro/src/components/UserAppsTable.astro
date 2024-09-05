@@ -13,6 +13,7 @@ import AppRepoLink from "./AppRepoLink.astro"
 import type { User } from "lucia"
 import AppUrl from "./AppUrl.astro"
 import { scope } from "simple:scope"
+import { isCommitSha } from "@/lib/utils"
 
 interface Props {
   user: User
@@ -62,7 +63,14 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
               />
             </TableCell>
             <TableCell>
-              <AppRepoLink app={app} content={app.gitRef} />
+              <AppRepoLink
+                app={app}
+                content={
+                  isCommitSha(app.gitRef)
+                    ? app.gitRef.substring(0, 7)
+                    : app.gitRef
+                }
+              />
             </TableCell>
             <TableCell>
               <AppRepoLink app={app} content={app.directory} />

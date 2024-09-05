@@ -54,3 +54,5 @@ export const getWorkerTotalCost = ({
     (chargeableRequests * pricing.unitPriceNanoUSD) / pricing.requestsPerUnit
   )
 }
+
+export const isCommitSha = (gitRef: string) => /^[0-9a-f]{40}$/.test(gitRef)
