@@ -4,10 +4,9 @@ import { scope } from "simple:scope"
 
 interface Props {
   app: App
-  content: string
 }
 
-const { app, content } = Astro.props
+const { app } = Astro.props
 ---
 
 <RootElement>
@@ -15,9 +14,10 @@ const { app, content } = Astro.props
     href={`https://github.com/${app.githubOwner}/${app.repo}/tree/${app.commitHash}/${app.directory}`}
     target="_blank"
     rel="noopener noreferrer"
+    class="inline-flex items-center"
     data-target={scope("repo-link")}
   >
-    {content}
+    <slot />
   </a>
 </RootElement>
 

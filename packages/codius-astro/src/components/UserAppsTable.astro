@@ -14,6 +14,7 @@ import type { User } from "lucia"
 import AppUrl from "./AppUrl.astro"
 import { scope } from "simple:scope"
 import { isCommitSha } from "@/lib/utils"
+import { FiGithub } from "react-icons/fi"
 
 interface Props {
   user: User
@@ -29,7 +30,7 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
     <TableHeader>
       <TableRow>
         <TableHead>URL</TableHead>
-        <TableHead>GitHub Repo</TableHead>
+        <TableHead>Source Repo</TableHead>
         <TableHead>Git Ref</TableHead>
         <TableHead>Directory</TableHead>
         <TableHead>Status</TableHead>
@@ -57,23 +58,20 @@ const apps = await Astro.locals.db.apps.getByUserId(user.id)
             </TableCell>
 
             <TableCell>
-              <AppRepoLink
-                app={app}
-                content={`${app.githubOwner}/${app.repo}`}
-              />
+              <AppRepoLink app={app}>
+                <FiGithub className="mr-2" />
+                {app.githubOwner}/{app.repo}
+              </AppRepoLink>
             </TableCell>
             <TableCell>
-              <AppRepoLink
-                app={app}
-                content={
-                  isCommitSha(app.gitRef)
-                    ? app.gitRef.substring(0, 7)
-                    : app.gitRef
-                }
-              />
+              <AppRepoLink app={app}>
+                {isCommitSha(app.gitRef)
+                  ? app.gitRef.substring(0, 7)
+                  : app.gitRef}
+              </AppRepoLink>
             </TableCell>
             <TableCell>
-              <AppRepoLink app={app} content={app.directory} />
+              <AppRepoLink app={app}>{app.directory}</AppRepoLink>
             </TableCell>
 
             <TableCell>
