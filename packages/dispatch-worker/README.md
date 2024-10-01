@@ -1,8 +1,12 @@
 # Dispatch Worker
 
-Cloudflare Workers for Platforms [dynamic dispatch worker](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/reference/how-workers-for-platforms-works/#dynamic-dispatch-worker)
+Cloudflare [Workers for Platforms](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/) [dynamic dispatch worker](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/reference/how-workers-for-platforms-works/#dynamic-dispatch-worker)
 
 ## :wrench: Setup
+
+### Cloudflare
+
+Subscribe to the Workers for Platforms [Paid plan](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/platform/pricing/) in your Cloudflare dashboard.
 
 ### Environment Variables
 
