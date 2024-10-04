@@ -38,7 +38,13 @@ cp .example.dev.vars .dev.vars
 
 #### GitHub OAuth App
 
-You'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) with:
+You'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) to allow users to login with GitHub.
+
+`Authorization callback URL` should be either:
+- `http://localhost:8788/login/github/callback` for local development or
+- `https://<your-pages-domain>/login/github/callback`
+
+Example:
 
 ![GitHub OAuth app](assets/oauth-app.png)
 
@@ -50,18 +56,27 @@ Update `GITHUB_CLIENT_SECRET` in `.dev.vars` with the value from the GitHub OAut
 
 #### GitHub Access Token
 
-You'll need to [create a GitHub Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) with Read and Write access to actions in order for codius-astro to deploy workers via its [GitHub Actions workflow](./.github/workflows/deploy-worker.yml).
+You'll need to [create a GitHub Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) with Read and Write access to Actions in order for codius-astro to deploy workers via its [GitHub Actions workflow](./.github/workflows/deploy-worker.yml).
+
+![GitHub Access Token](assets/github-access-token.png)
 
 Update `GITHUB_ACCESS_TOKEN` in `.dev.vars` with the value from the GitHub Access Token.
 
 #### GitHub Webhook
 
-You'll need to [create a GitHub repository webhook](https://docs.github.com/en/webhooks/using-webhooks/creating-webhooks#creating-a-repository-webhook) with the following settings:
+You'll need to [create a GitHub repository webhook](https://docs.github.com/en/webhooks/using-webhooks/creating-webhooks#creating-a-repository-webhook) to handle Workflow jobs and Workflows runs events.
+
+For `Payload URL`, use either:
+- `https://smee.io/<your-smee-path>` for local development with [Smee.io](https://smee.io/) or
+- `https://<your-pages-domain>/webhooks/github/workflow-job`
+
+Generate a `Secret` for the webhook and update `GITHUB_WEBHOOK_SECRET` in `.dev.vars` with the value.
+
+Example:
 
 ![Webhook settings](assets/webhook.png)
-![Webhook event](assets/webhook-event.png)
 
-Update `GITHUB_WEBHOOK_SECRET` in `.dev.vars` with the value from the GitHub Webhook.
+![Webhook event](assets/webhook-event.png)
 
 #### Secrets
 
