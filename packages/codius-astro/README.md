@@ -13,7 +13,28 @@
 
 ## :wrench: Setup
 
-### Setup Cloudflare D1 Database
+- [Cloudflare account](#cloudflare-account)
+- [D1 Database](#d1-database)
+- [GitHub OAuth App](#github-oauth-app)
+- [GitHub Access Token](#github-access-token)
+- [GitHub Webhook](#github-webhook)
+- [Stripe](#stripe)
+- [Environment Variables](#environment-variables)
+- [Secrets](#secrets)
+
+### Cloudflare Account
+
+Create a [Cloudflare account](https://www.cloudflare.com/).
+
+You will need a paid plan and enable [Workers for Platforms](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/platform/pricing/).
+
+Create a [Cloudflare API Token](https://developers.cloudflare.com/api/tokens/create) with permission to Edit Workers Scripts.
+
+Add [`CLOUDFLARE_ACCOUNT_ID`](#cloudflare_account_id) and [`CLOUDFLARE_API_TOKEN`](#cloudflare_api_token) as project [secrets](#secrets).
+
+### D1 Database
+
+Create a [Cloudflare D1 Database](https://developers.cloudflare.com/d1/) for managing user and worker data.
 
 ```bash
 pnpm --filter codius-astro drizzle-kit generate
@@ -28,15 +49,7 @@ pnpm --filter codius-astro d1 migrations apply <your-d1-db-name> --remote
 > rm packages/codius-astro/.wrangler/state/v3/d1/miniflare-D1DatabaseObject/*
 > ```
 
-### Environment Variables
-
-Environment variables are managed in [wrangler.toml](./wrangler.toml) and secrets in `.dev.vars`.
-
-```bash
-cp .example.dev.vars .dev.vars
-```
-
-#### GitHub OAuth App
+### GitHub OAuth App
 
 You'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) to allow users to login with GitHub.
 
@@ -50,19 +63,19 @@ Example:
 
 > **Note:** Use `127.0.0.1:8788` if running with `pnpm run dev` instead of `pnpm run preview`
 
-Update `GITHUB_APP_NAME` and `GITHUB_CLIENT_ID` in [wrangler.toml](./wrangler.toml) with the values from the GitHub OAuth App.
+Add [`GITHUB_APP_NAME`](#github_app_name) and [`GITHUB_CLIENT_ID`](#github_client_id) as [environment variables](#environment-variables) with the values from the GitHub OAuth App.
 
-Update `GITHUB_CLIENT_SECRET` in `.dev.vars` with the value from the GitHub OAuth App.
+Add [`GITHUB_CLIENT_SECRET`](#github_client_secret) as a project [secret](#secrets) with the value from the GitHub OAuth App.
 
-#### GitHub Access Token
+### GitHub Access Token
 
 You'll need to [create a GitHub Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) with Read and Write access to Actions in order for codius-astro to deploy workers via its [GitHub Actions workflow](./.github/workflows/deploy-worker.yml).
 
 ![GitHub Access Token](assets/github-access-token.png)
 
-Update `GITHUB_ACCESS_TOKEN` in `.dev.vars` with the value from the GitHub Access Token.
+Add [`GITHUB_ACCESS_TOKEN`](#github_access_token) as a project secret with the value from the GitHub Access Token.
 
-#### GitHub Webhook
+### GitHub Webhook
 
 You'll need to [create a GitHub repository webhook](https://docs.github.com/en/webhooks/using-webhooks/creating-webhooks#creating-a-repository-webhook) to handle Workflow jobs and Workflows runs events.
 
@@ -70,7 +83,7 @@ For `Payload URL`, use either:
 - `https://smee.io/<your-smee-path>` for local development with [Smee.io](https://smee.io/) or
 - `https://<your-pages-domain>/webhooks/github/workflow-job`
 
-Generate a `Secret` for the webhook and update `GITHUB_WEBHOOK_SECRET` in `.dev.vars` with the value.
+Generate a `Secret` for the webhook and add [`GITHUB_WEBHOOK_SECRET`](#github_webhook_secret) as a project [secret](#secrets).
 
 Example:
 
@@ -78,9 +91,86 @@ Example:
 
 ![Webhook event](assets/webhook-event.png)
 
-#### Secrets
+### Stripe
 
-Add `GITHUB_CLIENT_SECRET`, `GITHUB_ACCESS_TOKEN`, and `GITHUB_WEBHOOK_SECRET` to your Cloudflare Pages project as [encrypted secrets](https://developers.cloudflare.com/pages/functions/bindings/#secrets).
+You'll need to [create a Stripe account](https://stripe.com/docs/development/quickstart#api-keys) and get your Stripe Secret Key.
+
+Create a Stripe Product and Price for topping up worker balances.
+
+The Price should be of type [`Customer chooses price`](https://docs.stripe.com/payments/checkout/pay-what-you-want).
+
+Add [`STRIPE_SECRET_KEY`](#stripe_secret_key) and [`STRIPE_TOPUP_PRICE_ID`](#stripe_topup_price_id) as project [secrets](#secrets) with the values from Stripe.
+
+### Environment Variables
+
+Environment variables are managed in [wrangler.toml](./wrangler.toml).
+
+- [CF_DISPATCH_NAMESPACE](#cf_dispatch_namespace)
+- [DISPATCH_WORKER_HOSTNAME](#dispatch_worker_hostname)
+- [GITHUB_APP_NAME](#github_app_name)
+- [GITHUB_CLIENT_ID](#github_client_id)
+
+#### `CF_DISPATCH_NAMESPACE`
+
+The namespace of the [dispatch-worker](../dispatch-worker) deployed to Cloudflare Workers.
+
+#### `DISPATCH_WORKER_HOSTNAME`
+
+The hostname of the [dispatch-worker](../dispatch-worker) deployed to Cloudflare Workers.
+
+#### `GITHUB_APP_NAME`
+
+The name of the [GitHub OAuth App](#github-oauth-app).
+
+#### `GITHUB_CLIENT_ID`
+
+The Client ID from the [GitHub OAuth App](#github-oauth-app).
+
+### Secrets
+
+Secrets are managed in `.dev.vars` for local development.
+
+```bash
+cp .example.dev.vars .dev.vars
+```
+
+Add the secrets from your `.dev.vars` to your Cloudflare Pages project as [encrypted secrets](https://developers.cloudflare.com/pages/functions/bindings/#secrets).
+
+- [`CLOUDFLARE_ACCOUNT_ID`](#cloudflare_account_id)
+- [`CLOUDFLARE_API_TOKEN`](#cloudflare_api_token)
+- [`GITHUB_CLIENT_SECRET`](#github_client_secret)
+- [`GITHUB_ACCESS_TOKEN`](#github_access_token)
+- [`GITHUB_WEBHOOK_SECRET`](#github_webhook_secret)
+- [`STRIPE_SECRET_KEY`](#stripe_secret_key)
+- [`STRIPE_TOPUP_PRICE_ID`](#stripe_topup_price_id)
+
+#### `CLOUDFLARE_ACCOUNT_ID`
+
+Your Cloudflare Account ID.
+
+#### `CLOUDFLARE_API_TOKEN`
+
+Your Cloudflare API Token.
+
+#### `GITHUB_CLIENT_SECRET`
+
+The Client Secret from the [GitHub OAuth App](#github-oauth-app).
+
+#### `GITHUB_ACCESS_TOKEN`
+
+The [GitHub Access Token](#github-access-token) for deploying workers.
+
+#### `GITHUB_WEBHOOK_SECRET`
+
+The secret for the [GitHub repository webhook](#github-webhook).
+
+#### `STRIPE_SECRET_KEY`
+
+Your Stripe Secret Key.
+
+#### `STRIPE_TOPUP_PRICE_ID`
+
+The Stripe Price ID for topping up your account.
 
 ## 🧞 Commands
 
