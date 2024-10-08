@@ -36,9 +36,23 @@ Add [`CLOUDFLARE_ACCOUNT_ID`](#cloudflare_account_id) and [`CLOUDFLARE_API_TOKEN
 
 Create a [Cloudflare D1 Database](https://developers.cloudflare.com/d1/) for managing user and worker data.
 
+From monorepo root:
+
 ```bash
-pnpm --filter codius-astro drizzle-kit generate
 pnpm --filter codius-astro d1 create <your-d1-db-name>
+```
+
+Add the D1 `database_name` and `database_id` to `[[wrangler.env]]` in [wrangler.toml](./wrangler.toml) in the following sections:
+- `[[d1_databases]]` (for local development)
+- `[[env.preview.d1_databases]]` (for preview deployments)
+- `[[env.production.d1_databases]]` (for production deployments)
+
+See Workers [Environments](https://developers.cloudflare.com/workers/wrangler/environments/) and Pages [Branch deployment controls](https://developers.cloudflare.com/pages/configuration/branch-build-controls/) documentation for more information about managing production and preview environments for your Cloudflare Pages project.
+
+Apply migrations to your database:
+
+```
+pnpm --filter codius-astro drizzle-kit generate
 pnpm --filter codius-astro d1 migrations apply <your-d1-db-name> --local
 pnpm --filter codius-astro d1 migrations apply <your-d1-db-name> --remote
 ```
@@ -129,6 +143,8 @@ The Client ID from the [GitHub OAuth App](#github-oauth-app).
 ### Secrets
 
 Secrets are managed in `.dev.vars` for local development.
+
+From `packages/codius-astro`:
 
 ```bash
 cp .example.dev.vars .dev.vars
