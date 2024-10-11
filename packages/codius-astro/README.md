@@ -26,11 +26,15 @@
 
 Create a [Cloudflare account](https://www.cloudflare.com/).
 
-You will need a paid plan and enable [Workers for Platforms](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/platform/pricing/).
+You will need a paid plan and enable [Workers for Platforms](https://developers.cloudflare.com/cloudflare-for-platforms/workers-for-platforms/platform/pricing/)[^1].
 
 Create a [Cloudflare API Token](https://developers.cloudflare.com/api/tokens/create) with permission to Edit Workers Scripts.
 
 Add [`CLOUDFLARE_ACCOUNT_ID`](#cloudflare_account_id) and [`CLOUDFLARE_API_TOKEN`](#cloudflare_api_token) as project [secrets](#secrets).
+
+[^1]:
+    Cloudflare [`wrangler`](https://developers.cloudflare.com/workers/wrangler/) cli currently doesn't support local development for Workers for Platforms.
+    See https://github.com/cloudflare/workers-sdk/pull/5622
 
 ### D1 Database
 
@@ -43,6 +47,7 @@ pnpm --filter codius-astro d1 create <your-d1-db-name>
 ```
 
 Add the D1 `database_name` and `database_id` to `[[wrangler.env]]` in [wrangler.toml](./wrangler.toml) in the following sections:
+
 - `[[d1_databases]]` (for local development)
 - `[[env.preview.d1_databases]]` (for preview deployments)
 - `[[env.production.d1_databases]]` (for production deployments)
@@ -68,6 +73,7 @@ pnpm --filter codius-astro d1 migrations apply <your-d1-db-name> --remote
 You'll need to [create a GitHub OAuth App](https://authjs.dev/guides/configuring-github#creating-an-oauth-app-in-github) to allow users to login with GitHub.
 
 `Authorization callback URL` should be either:
+
 - `http://localhost:8788/login/github/callback` for local development or
 - `https://<your-pages-domain>/login/github/callback`
 
@@ -94,6 +100,7 @@ Add [`GITHUB_ACCESS_TOKEN`](#github_access_token) as a project secret with the v
 You'll need to [create a GitHub repository webhook](https://docs.github.com/en/webhooks/using-webhooks/creating-webhooks#creating-a-repository-webhook) to handle Workflow jobs and Workflows runs events.
 
 For `Payload URL`, use either:
+
 - `https://smee.io/<your-smee-path>` for local development with [Smee.io](https://smee.io/) or
 - `https://<your-pages-domain>/webhooks/github/workflow-job`
 
@@ -188,16 +195,26 @@ Your Stripe Secret Key.
 
 The Stripe Price ID for topping up your account.
 
+## :rocket: Deploy
+
+You can deploy the codius-astro site to Cloudflare Pages via either [direct upload](https://developers.cloudflare.com/pages/get-started/direct-upload/) or [git integration](https://developers.cloudflare.com/pages/get-started/git-integration/).
+
+For direct upload, you can use the following command from the monorepo root:
+
+```bash
+pnpm --filter codius-astro pages deploy
+```
+
 ## 🧞 Commands
 
-All commands are run from the root of the project, from a terminal:
+All commands are run from the root of the monorepo, from a terminal:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm run dev`             | Starts local dev server at `localhost:8788`      |
-| `pnpm run build`           | Build your production site to `./dist/`          |
-| `pnpm run preview`         | Preview your build locally, before deploying     |
-| `pnpm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm run astro -- --help` | Get help using the Astro CLI                     |
-| `pnpm run smee`            | Start a local webhook proxy with [Smee.io](https://smee.io/) |
+| Command                                          | Action                                                       |
+| :----------------------------------------------- | :----------------------------------------------------------- |
+| `pnpm install`                                   | Installs dependencies                                        |
+| `pnpm --filter codius-astro run dev`             | Starts local dev server at `localhost:8788`                  |
+| `pnpm --filter codius-astro run build`           | Build your production site to `./dist/`                      |
+| `pnpm --filter codius-astro run preview`         | Preview your build locally, before deploying                 |
+| `pnpm --filter codius-astro run astro ...`       | Run CLI commands like `astro add`, `astro check`             |
+| `pnpm --filter codius-astro run astro -- --help` | Get help using the Astro CLI                                 |
+| `pnpm --filter codius-astro run smee`            | Start a local webhook proxy with [Smee.io](https://smee.io/) |
