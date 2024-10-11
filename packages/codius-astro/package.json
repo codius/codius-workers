@@ -12,7 +12,7 @@
     "deploy": "astro build && wrangler pages deploy",
     "cf-typegen": "wrangler types",
     "lint": "eslint \"./*.mjs\" \"src/**/*.{js,ts,tsx,astro}\" && prettier --check \"./*.mjs\" \"src/**/*.{js,ts,tsx,astro}\"",
-    "format": "prettier --write \"./*.mjs\" \"src/**/*.{js,ts,tsx,astro}\"",
+    "format": "prettier --write \"./*.mjs\" \"src/**/*.{js,ts,tsx,astro}\" \"**/README.md\"",
     "d1": "wrangler d1",
     "smee": "smee --path /webhooks/github/workflow-job --port 8788"
   },
